@@ -24,7 +24,7 @@ const Anuncios = sequelize.define('Anuncios', {
         }
     },
     tipo: {
-        type: DataTypes.TEXT,
+        type: DataTypes.ENUM('anuncio', 'tarea', 'prueba','cuestonario','foro'),
         allowNull: false
     },
     fecha_publicacion: {
