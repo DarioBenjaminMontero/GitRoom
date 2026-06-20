@@ -23,6 +23,10 @@ const Anuncios = sequelize.define('Anuncios', {
             key: 'id_clase'
         }
     },
+    tipo: {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
     fecha_publicacion: {
         type: DataTypes.DATE,
         allowNull: false
