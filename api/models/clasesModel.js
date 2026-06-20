@@ -8,6 +8,16 @@ const Clases = sequelize.define ('Clases',{
         primaryKey : true
     },
     Personas : {
-        
+        type : DataTypes.STRING,
+        allowNull : false
+    },
+    es_Profesor : {
+        type : DataTypes.BOOLEAN,
+        allowNull : false
+    },
+    id_Usuario : {
+        type : DataTypes.INTEGER,
+        allowNull : false
     }
-})
+});
+module.exports = {Clases};
