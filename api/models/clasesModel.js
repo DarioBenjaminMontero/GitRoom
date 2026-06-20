@@ -7,15 +7,15 @@ const Clases = sequelize.define ('Clases',{
         autoIncrement : true,
         primaryKey : true
     },
-    Personas : {
+    personas : {
         type : DataTypes.STRING,
         allowNull : false
     },
-    es_Profesor : {
+    es_profesor : {
         type : DataTypes.BOOLEAN,
         allowNull : false
     },
-    id_Usuario : {
+    id_usuario : {
         type : DataTypes.INTEGER,
         allowNull : false
     }
