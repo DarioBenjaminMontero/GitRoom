@@ -2,7 +2,7 @@ import { useState } from 'react'
 import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
-import GitRoomLogo from './assets/GitRoom_Logo.jpg'
+import GitRoomLogo from './assets/GitRoom_Logo.png'
 import './App.css'
 
 function App() {
