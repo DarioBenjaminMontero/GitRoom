@@ -12,10 +12,13 @@ function App() {
     <>
     <section id="header">
     
-      <img src={GitRoomLogo} width="140" height="100" alt="" />
+  
+      <img src={GitRoomLogo} width="140" height="100" alt="" /> 
+      
       <div className='header-buttons'>
       <button id ="sesion">
         Iniciar Sesion
+        
       </button>
       <button id ="registrar">
         Registrarse
