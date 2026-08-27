@@ -1,3 +1,76 @@
+#header {
+  width: 100%;
+  height: 90px;
+  padding: 0 40px;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid var(--border);
+  background: var(--background);
+
+  position: relative;
+  z-index: 10;
+}
+
+#header img {
+  width: 140px;
+  height: 100px;
+  object-fit: contain;
+}
+
+/* Contenedor para los botones */
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Iniciar sesión */
+#sesion {
+  color: var(--text-h);
+  background: transparent;
+}
+
+#sesion:hover {
+  background: var(--social-bg);
+  border-color: var(--accent);
+}
+
+/* Registrarse */
+#registrar {
+  color: white;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+#registrar:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  #header {
+    height: 75px;
+    padding: 0 15px;
+  }
+
+  #header img {
+    width: 100px;
+    height: auto;
+  }
+
+  #header button {
+    padding: 8px 12px;
+    font-size: 13px;
+    margin-left: 5px;
+  }
+}
+
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;
