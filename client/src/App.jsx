@@ -2,7 +2,6 @@ import { useState } from 'react'
 import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
-import GitRoomLogo from './assets/GitRoom_Logo.png'
 import './App.css'
 
 function App() {
@@ -10,18 +9,6 @@ function App() {
 
   return (
     <>
-    <section id="header">
-    
-      <img src={GitRoomLogo} width="140" height="100" alt="" />
-      <div className='header-buttons'>
-      <button id ="sesion">
-        Iniciar Sesion
-      </button>
-      <button id ="registrar">
-        Registrarse
-      </button>
-      </div>
-    </section>
       <section id="center">
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />
