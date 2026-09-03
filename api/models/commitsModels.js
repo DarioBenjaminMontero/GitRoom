@@ -4,7 +4,7 @@ const { DataTypes } = require('sequelize');
 
 
 
-const commits = sequelize.define('commits',{
+const Commits = sequelize.define('commits',{
 
 
     id_commit : {  
@@ -57,4 +57,4 @@ const commits = sequelize.define('commits',{
 })
 
 
-module.exports = {commits};
+module.exports = {Commits};

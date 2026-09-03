@@ -1,17 +1,17 @@
 const {clases} = require ('./clasesModel.js');
-const { anuncio} = require ('./anuncioModel.js');
-const { archivosSubidos} = require ('./archivosSubidosModel.js');
+const { Anuncios } = require ('./anuncioModel.js');
+const { ArchivosSubidos} = require ('./archivosSubidosModel.js');
 const { Chats} = require ('./ChatsModels.js');
-const { mensajes} = require ('./mensajesModel.js');
+const { Mensajes} = require ('./mensajesModel.js');
 const { usuarios} = require ('./usuariosModel.js');
 const { clasesUsuarios} = require ('./clasesUsuariosModels.js');
 const { repositorios} = require ('./repositoriosModels.js');
-const { usuariosRepositorios } = require ('./usuariosRepositoriosModels.js');
+const { UsuariosRepositorios } = require ('./usuariosRepositoriosModels.js');
 const { chatsUsuarios} = require('./chatsUsuariosModels.js');
 const { versionesArchivos } = require('./versionesArchivos.js');
-const { archivosModels} = require('./archivosModels.js');
+const { Archivos } = require('./archivosModels.js');
 const { versionesArchivos} = require('./versionesArchivos.js');
-const { commits } = require('./commitsModels.js');
+const { Commits } = require('./commitsModels.js');
 
 clases.belongsToMany(usuarios,{through: clasesUsuarios,
 foreignKey:  'id_clase',
@@ -21,11 +21,11 @@ usuarios.belongsToMany(clases, {through: clasesUsuarios,
     foreignKey: 'id_usuario',
     otherKey:'id_clase'
 });
-usuarios.belongsToMany(repositorios, {through: usuariosRepositorios,
+usuarios.belongsToMany(repositorios, {through: UsuariosRepositorios,
     foreignKey: 'id_usuario',
     otherKey:'id_repo'
 });
-repositorios.belongsToMany(usuarios, {through: usuariosRepositorios,
+repositorios.belongsToMany(usuarios, {through: UsuariosRepositorios,
     foreignKey: 'id_repo',
     otherKey:'id_usuario'
 })
@@ -39,13 +39,13 @@ usuarios.belongsToMany(Chats, {through: chatsUsuarios,
 });
 
 
-commits.belongsTo(commits,{
+Commits.belongsTo(Commits,{
     as: 'padre',
     foreignKey: 'id_commit_padre'
 });
 
 
-commits.hasMany(commits, {
+Commits.hasMany(Commits, {
   as: 'hijos',
   foreignKey: 'id_commit_padre',
 });
@@ -53,16 +53,16 @@ commits.hasMany(commits, {
 
 module.exports ={
     clases,
-    anuncio,
-    archivosSubidos,
+    Anuncios,
+    ArchivosSubidos,
     Chats,
-    mensajes,
+    Mensajes,
     usuarios,
     clasesUsuarios,
     repositorios,
-    usuariosRepositorios,
+    UsuariosRepositorios,
     chatsUsuarios,
-    archivosModels,
+    Archivos,
     versionesArchivos,
-    commits
+    Commits
 }
