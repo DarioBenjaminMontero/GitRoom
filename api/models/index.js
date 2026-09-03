@@ -7,7 +7,10 @@ const { usuarios} = require ('./usuariosModel.js');
 const { clasesUsuarios} = require ('./clasesUsuariosModels.js');
 const { repositorios} = require ('./repositoriosModels.js');
 const { usuariosRepositorios } = require ('./usuariosRepositoriosModels.js');
-const { chatsUsuarios} = require('./chatsUsuariosModels.js')
+const { chatsUsuarios} = require('./chatsUsuariosModels.js');
+const { versionesArchivos } = require('./versionesArchivos.js');
+const { archivosModels} = require('./archivosModels.js');
+const { versionesArchivos} = require('./versionesArchivos.js')
 
 clases.belongsToMany(usuarios,{through: clasesUsuarios,
 foreignKey:  'id_clase',
@@ -44,5 +47,7 @@ module.exports ={
     clasesUsuarios,
     repositorios,
     usuariosRepositorios,
-    chatsUsuarios
+    chatsUsuarios,
+    archivosModels,
+    versionesArchivos
 }
