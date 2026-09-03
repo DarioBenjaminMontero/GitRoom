@@ -15,16 +15,6 @@ const Chats =  sequelize.define("Chats",{
         allowNULL: false,
         defaultValue: true
     },
-    id_usuario: 
-    {
-        type: DataTypes.INTEGER,
-        allowNULL: false,
-        references:
-        {
-            model: "usuarios",
-            key: "id_usuario"
-        }
-    }
 },{
     tableName: "chats",
     timestamps:  false

@@ -1,0 +1,83 @@
+/* Contenedor principal del Footer */
+#footer {
+  background-color: #0d1117; /* Tono oscuro tipo IDE / GitHub */
+  color: #c9d1d9;
+  padding: 3rem 2rem 1.5rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  border-top: 1px solid #30363d;
+  margin-top: auto; /* Útil si quieres que siempre vaya al fondo */
+}
+
+/* Estructura en columnas responsiva */
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2.5rem;
+  align-items: start;
+}
+
+/* Estilos para el Logo y Copyright */
+.footer-brand img {
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.footer-text {
+  font-size: 0.85rem;
+  color: #8b949e;
+  margin: 0;
+}
+
+/* Títulos de las secciones */
+.footer-about h3,
+.footer-social h3 {
+  color: #f0f6fc;
+  font-size: 1.1rem;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+  border-bottom: 2px solid #238636; /* Detalle de acento verde */
+  display: inline-block;
+  padding-bottom: 0.2rem;
+}
+
+/* Párrafo "Sobre nosotros" */
+.footer-about p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #8b949e;
+  margin: 0;
+}
+
+/* Enlaces de redes sociales */
+.social-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #58a6ff;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: color 0.2s ease, transform 0.2s ease;
+  width: fit-content;
+}
+
+.social-links a:hover {
+  color: #79c0ff;
+  transform: translateX(4px); /* Pequeño desplazamiento elegante al pasar el mouse */
+}
+
+/* Estilo de la imagen del icono de GitHub */
+.social-links img {
+  background-color: #ffffff;
+  border-radius: 50%;
+  padding: 2px;
+}
