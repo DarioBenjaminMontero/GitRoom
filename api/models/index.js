@@ -10,7 +10,8 @@ const { usuariosRepositorios } = require ('./usuariosRepositoriosModels.js');
 const { chatsUsuarios} = require('./chatsUsuariosModels.js');
 const { versionesArchivos } = require('./versionesArchivos.js');
 const { archivosModels} = require('./archivosModels.js');
-const { versionesArchivos} = require('./versionesArchivos.js')
+const { versionesArchivos} = require('./versionesArchivos.js');
+const { commits } = require('./commitsModels.js');
 
 clases.belongsToMany(usuarios,{through: clasesUsuarios,
 foreignKey:  'id_clase',
@@ -37,6 +38,19 @@ usuarios.belongsToMany(Chats, {through: chatsUsuarios,
     otherKey:'id_chat'
 });
 
+
+commits.belongsTo(commits,{
+    as: 'padre',
+    foreignKey: 'id_commit_padre'
+});
+
+
+commits.hasMany(commits, {
+  as: 'hijos',
+  foreignKey: 'id_commit_padre',
+});
+
+
 module.exports ={
     clases,
     anuncio,
@@ -49,5 +63,6 @@ module.exports ={
     usuariosRepositorios,
     chatsUsuarios,
     archivosModels,
-    versionesArchivos
+    versionesArchivos,
+    commits
 }
