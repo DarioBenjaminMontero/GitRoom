@@ -1,7 +1,7 @@
 const { sequelize } = require('../config/db.js');
 const { DataTypes } = require('sequelize');
 
-const Aorchivs = sequelize.define('Archivos', {
+const Archivos = sequelize.define('Archivos', {
     id_Archivo :{
         type: DataTypes.INTEGER,
         autoIncrement : true,

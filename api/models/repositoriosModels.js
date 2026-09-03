@@ -28,6 +28,15 @@ const repositorios = sequelize.define('repositorios', {
 
 type: DataTypes.DATE,
         allowNULL: false
+    }, 
+    id_clase:{
+
+type: DataTypes.INTEGER,
+        allowNULL: false,
+        references: {
+            model: 'clases',
+            key: 'id_clase'
+        }
     }
 }, {
     tableName: 'repositorios',
