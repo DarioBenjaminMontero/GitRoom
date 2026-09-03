@@ -9,7 +9,7 @@ const repositorios = sequelize.define('repositorios', {
         autoIncrement: true,
         primaryKey: true
     },
-    Drescripcion:
+    descripcion:
     {
         type: DataTypes.TEXT,
         allowNULL: false,
@@ -22,6 +22,11 @@ const repositorios = sequelize.define('repositorios', {
     nombre_repo:
     {
         type: DataTypes.TEXT,
+        allowNULL: false
+    }, 
+    fecha_creacion: {
+
+type: DataTypes.DATE,
         allowNULL: false
     }
 }, {
