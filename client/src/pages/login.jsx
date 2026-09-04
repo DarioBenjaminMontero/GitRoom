@@ -7,7 +7,8 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
-    const logear = async () => {
+    const logear = async (e) => {
+        e.preventDefault();
         try {
             const response = await axios.post("http://localhost:3000/login", {
                 email,
@@ -15,10 +16,12 @@ export default function Login() {
             });
             localStorage.setItem("token", response.data.token);
             localStorage.setItem("user", JSON.stringify(response.data.user));
+            console.log(localStorage);
             navigate("/")
         }
         catch (error) {
             alert("Error al iniciar sesión: " + (error.response?.data?.message || error.message));
+            console.log(localStorage);
         }
     };
 
