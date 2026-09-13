@@ -12,8 +12,8 @@ const ArchivosSubidos = sequelize.define('Archivos', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references :{
-            model: 'anuncios',
-            key: id_anuncio
+            model: 'Anuncios',
+            key: 'id_anuncio'
         }
 
     },
@@ -26,7 +26,7 @@ const ArchivosSubidos = sequelize.define('Archivos', {
     },
 
     nombre:{
-        types: DataTypes.TEXT,
+        type: DataTypes.TEXT,
         allowNull:false
 
     },

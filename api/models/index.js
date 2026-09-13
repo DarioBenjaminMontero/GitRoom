@@ -8,7 +8,6 @@ const { clasesUsuarios} = require ('./clasesUsuariosModels.js');
 const { repositorios} = require ('./repositoriosModels.js');
 const { UsuariosRepositorios } = require ('./usuariosRepositoriosModels.js');
 const { chatsUsuarios} = require('./chatsUsuariosModels.js');
-const { versionesArchivos } = require('./versionesArchivos.js');
 const { Archivos } = require('./archivosModels.js');
 const { versionesArchivos} = require('./versionesArchivos.js');
 const { Commits } = require('./commitsModels.js');

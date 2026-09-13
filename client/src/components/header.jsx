@@ -14,7 +14,7 @@ return(
         Iniciar Sesion
         
       </button>
-      <button id ="registrar">
+      <button id ="registrar" onClick={()=> navigate ("register")}>
         Registrarse 
       </button>
       </div>
