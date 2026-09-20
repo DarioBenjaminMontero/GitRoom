@@ -20,7 +20,7 @@ const {
 } = require('./models/index.js');
 // 2. importar rutas
 
-const router = require('./routes/userRoutes');
+const routerUsuario = require('./routes/userRoutes');
 
 const app = express();
 
@@ -29,7 +29,7 @@ app.use(cors());
 app.use(express.json());
 
 // 3. Montamos las rutas
-app.use('/login', router); 
+app.use('/users', routerUsuario); 
 //app.use('/posts', postRoutes); // Ej: /posts para crear, listar y dar like
 
 const puerto = 3000;

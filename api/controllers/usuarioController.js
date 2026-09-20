@@ -1,8 +1,29 @@
-const { usuarios } = require('../models');
-const bcrypt = require('bcryptjs');
+const { usuarios } = require("../models/index.js")
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
 const JWT_SECRET = 'Ranas_Todas_Flacas_Musculosas'; 
+const Registro = async(req, res)=>{
+
+const { nombre, contraseña, año_division, apellido, mail } = req.body
+
+const contraseñaHasheada = await bcrypt.hash(contraseña, 10)
+try{
+const usuario = usuarios.create({
+    nombre, 
+    mail, 
+    apellido,
+    contraseña :contraseñaHasheada,
+    año_division
+})
+
+res.status(201).json({message: "Usuario creado"})
+}
+catch(error){
+
+res.status(500).json({error: "error en el servidor", detalles: error.message})
+
+}
+}
 
 const login = async (req, res) => {
     try {
@@ -38,5 +59,5 @@ const login = async (req, res) => {
 };
 
 module.exports = {
-    login
+    login, Registro
 };
