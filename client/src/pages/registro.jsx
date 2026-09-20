@@ -9,9 +9,10 @@ const [contraseña, setContraseña] = useState("")
 const [año_division, setAño_Division] = useState("")
 const [apellido, setApellido] = useState("")
 const [mail, setMail] = useState("")
+const navigate = useNavigate();
 
 const registro = async(e) =>{
-
+e.preventDefault()
 const nuevoUsuario = {
 nombre,
 contraseña,
