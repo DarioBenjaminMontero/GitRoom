@@ -27,7 +27,8 @@ const repositorios = sequelize.define('repositorios', {
     fecha_creacion: {
 
 type: DataTypes.DATE,
-        allowNULL: false
+        allowNULL: false,
+        defaultValue : DataTypes.NOW
     }, 
     id_clase:{
 
