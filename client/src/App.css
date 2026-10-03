@@ -39,6 +39,18 @@
   border-color: var(--accent);
 }
 
+/* Repositorios */
+#repositorios-boton {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+#repositorios-boton:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
 /* Registrarse */
 #registrar {
   color: white;
