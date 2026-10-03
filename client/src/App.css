@@ -339,3 +339,8 @@
     background: transparent;
   }
 }
+body {
+    background: linear-gradient(135deg, #000000, #2d2c70, #632a82);
+    margin: 0;
+    height: 100vh; 
+}
