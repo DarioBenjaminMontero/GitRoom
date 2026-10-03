@@ -12,7 +12,7 @@ const clases = sequelize.define('clases', {
         allowNull: false
     },
     codigo: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
         unique:true
         

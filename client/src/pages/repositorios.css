@@ -2,12 +2,6 @@
    Página de la materia (Tablón / Tareas / Repos)
    ========================================== */
 
-/* En esta página el contenido ocupa todo el ancho, sin los bordes laterales de #root */
-#root:has(#repositorios) {
-  width: 100%;
-  border-inline: none;
-}
-
 /* Misma paleta estilo GitHub Dark que NewRepository */
 #repositorios {
   --tarjeta: #161b22;

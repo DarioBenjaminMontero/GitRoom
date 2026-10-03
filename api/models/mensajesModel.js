@@ -25,8 +25,8 @@ const Mensajes = sequelize.define('Mensajes', {
         allowNULL: false,
         references:
         {
-            model: 'chats',
-            key: 'id_usuario_participante'
+            model: 'usuarios',
+        key: 'id_usuario'
         }
     },
     mensaje:
