@@ -28,13 +28,16 @@ repositorios.belongsToMany(usuarios, {through: UsuariosRepositorios,
     foreignKey: 'id_repo',
     otherKey:'id_usuario'
 })
-Chats.belongsToMany(usuarios,{through: chatsUsuarios,
+Chats.belongsToMany(usuarios, {
+    through: chatsUsuarios,
     foreignKey: 'id_chat',
-    otherKey:'id_usuario'
+    otherKey: 'id_usuario'
 });
-usuarios.belongsToMany(Chats, {through: chatsUsuarios,
+
+usuarios.belongsToMany(Chats, {
+    through: chatsUsuarios,
     foreignKey: 'id_usuario',
-    otherKey:'id_chat'
+    otherKey: 'id_chat'
 });
 
 
