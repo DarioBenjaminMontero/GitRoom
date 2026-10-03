@@ -1,0 +1,285 @@
+/* ==========================================
+   Página de la materia (Tablón / Tareas / Repos)
+   ========================================== */
+
+/* En esta página el contenido ocupa todo el ancho, sin los bordes laterales de #root */
+#root:has(#repositorios) {
+  width: 100%;
+  border-inline: none;
+}
+
+/* Misma paleta estilo GitHub Dark que NewRepository */
+#repositorios {
+  --tarjeta: #161b22;
+  --barra: #161b22;
+  --bg: #0d1117;
+  --border: #30363d;
+  --text: #8b949e;
+  --text-h: #f0f6fc;
+
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  text-align: left;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ---------- Barra con el nombre de la materia ---------- */
+
+.materia-barra {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  background: var(--barra);
+}
+
+.materia-barra h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.menu-boton {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.menu-boton span {
+  width: 14px;
+  height: 4px;
+  background: var(--text-h);
+}
+
+/* ---------- Pestañas ---------- */
+
+.materia-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 6px 40px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab {
+  padding: 6px 10px 8px;
+  font-size: 17px;
+  color: var(--text-h);
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+}
+
+.tab:hover {
+  border-bottom-color: var(--border);
+}
+
+.tab.activo {
+  font-weight: 700;
+  border-bottom-color: var(--accent);
+}
+
+/* ---------- Contenido ---------- */
+
+.materia-contenido {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+  box-sizing: border-box;
+}
+
+.lista-pildoras {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Tarjeta redondeada con ícono (tareas / avisos del tablón) */
+.pildora {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 22px;
+  min-height: 48px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--tarjeta);
+  color: var(--text-h);
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.pildora:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+.pildora-titulo {
+  flex: 1;
+  min-width: 0;
+}
+
+.pildora-detalle {
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.icono-tarea {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  padding: 2px;
+  border-radius: 4px;
+  background: #fff;
+  fill: none;
+  stroke: #111;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* ---------- Tablón ---------- */
+
+.mensaje {
+  border-radius: 28px;
+  background: var(--tarjeta);
+  color: var(--text-h);
+  font-size: 15px;
+  overflow: hidden;
+}
+
+.mensaje-cuerpo {
+  padding: 16px 28px 20px;
+}
+
+.mensaje-cuerpo strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.mensaje-comentarios {
+  padding: 12px 28px 16px;
+  border-top: 2px solid var(--bg);
+  font-size: 14px;
+}
+
+.mensaje-comentarios span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.mensaje-comentarios p {
+  padding-left: 24px;
+  margin-bottom: 4px;
+}
+
+/* ---------- Tareas ---------- */
+
+.grupo-bimestre {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.grupo-bimestre h3 {
+  margin: 8px 0 0 6px;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+/* ---------- Repos (vista del alumno) ---------- */
+
+.repos-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.repos-cabecera h3 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+.boton-pildora {
+  padding: 12px 48px;
+  font-size: 17px;
+  color: var(--text-h);
+  background: var(--tarjeta);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.boton-pildora:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.lista-archivos {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.lista-archivos li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.archivo-nombre {
+  font-size: 18px;
+  color: var(--text-h);
+  word-break: break-word;
+}
+
+.archivo-nombre::before {
+  content: "· ";
+}
+
+.archivo-detalle {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 600px) {
+  .materia-tabs {
+    padding: 6px 16px 0;
+  }
+
+  .pildora {
+    border-radius: 24px;
+    padding: 10px 16px;
+  }
+
+  .repos-cabecera {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .boton-pildora {
+    padding: 10px 24px;
+  }
+}

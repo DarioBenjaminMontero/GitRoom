@@ -25,7 +25,9 @@ export default function Header() {
   Bienvenido {user.username}
 </h2>
 <div className='header-buttons'>
-  
+          <button id="repositorios-boton" onClick={() => navigate("/repositorios")}>
+            Repositorios
+          </button>
           <button id="sesion" onClick={logout}>
             Cerrar Sesión
           </button>
