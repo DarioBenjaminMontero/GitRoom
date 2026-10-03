@@ -1,5 +1,5 @@
 const { sequelize } = require('../config/db.js');
-const { DataTypes } = require('sequelize');
+const { DataTypes, UniqueConstraintError } = require('sequelize');
 
 const usuarios = sequelize.define('usuarios', {
     id_usuario: {
@@ -11,6 +11,12 @@ const usuarios = sequelize.define('usuarios', {
         type: DataTypes.STRING(150),
         allowNull: false
     },
+    mail:{
+        type: DataTypes.STRING(150),
+        allowNull: false,
+        unique : true
+    }
+    ,
     apellido: {
         type: DataTypes.STRING(150),
         allowNull: false

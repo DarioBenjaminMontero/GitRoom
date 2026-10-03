@@ -1,7 +1,7 @@
 const { sequelize } = require('../config/db.js');
 const { DataTypes } = require('sequelize');
 
-const Aorchivs = sequelize.define('Archivos', {
+const ArchivosSubidos = sequelize.define('Archivos', {
     id_Archivo :{
         type: DataTypes.INTEGER,
         autoIncrement : true,
@@ -12,8 +12,8 @@ const Aorchivs = sequelize.define('Archivos', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references :{
-            model: 'anuncios',
-            key: id_anuncio
+            model: 'Anuncios',
+            key: 'id_anuncio'
         }
 
     },
@@ -26,7 +26,7 @@ const Aorchivs = sequelize.define('Archivos', {
     },
 
     nombre:{
-        types: DataTypes.TEXT,
+        type: DataTypes.TEXT,
         allowNull:false
 
     },
@@ -43,4 +43,4 @@ const Aorchivs = sequelize.define('Archivos', {
 
 });
 
-module.exports = {Archivos};
+module.exports = {ArchivosSubidos};
