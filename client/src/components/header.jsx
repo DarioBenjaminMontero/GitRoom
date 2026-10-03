@@ -51,6 +51,9 @@ export default function Header() {
           <button id="registrar" onClick={() => navigate("register")}>
             Registrarse
           </button>
+          <button id="newRepo" onClick={() => navigate("newRepository")}>
+            repo
+          </button>
         </div>
       </section>
 

@@ -228,7 +228,7 @@
 
 #spacer {
   height: 88px;
-  border-top: 1px solid var(--border);
+  
   @media (max-width: 1024px) {
     height: 48px;
   }
@@ -273,17 +273,17 @@
 }
 
 .register-form {
-  width: 100%;
-  max-width: 420px;
-  background: var(--background);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 32px;
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  box-sizing: border-box;
+    width: 100%;
+    max-width: 420px;
+    background: transparent;       /* <-- Quitamos el fondo sólido de la caja */
+    border: none;                  /* <-- Eliminamos el borde rectangular */
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: none;              /* <-- Quitamos la sombra que marcaba el bloque */
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    box-sizing: border-box;
 }
 
 .register-form h2 {
@@ -342,5 +342,5 @@
 body {
     background: linear-gradient(135deg, #000000, #2d2c70, #632a82);
     margin: 0;
-    height: 100vh; 
+    min-height: 100vh;
 }
