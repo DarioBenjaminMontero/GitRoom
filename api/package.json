@@ -7,12 +7,13 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "start" : "node --watch index.js"
+    "start": "node --watch index.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "i": "^0.3.7",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.23.0",
     "sequelize": "^6.37.8"

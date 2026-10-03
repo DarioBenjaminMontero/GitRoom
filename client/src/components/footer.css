@@ -4,7 +4,7 @@
   color: #c9d1d9;
   padding: 3rem 2rem 1.5rem;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  border-top: 1px solid #30363d;
+  /* border-top: 1px solid #30363d; */
   margin-top: auto; /* Útil si quieres que siempre vaya al fondo */
 }
 
