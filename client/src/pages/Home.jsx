@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import ObtenerClases from './ObtenerClases.jsx'
 
 
 
@@ -21,6 +22,8 @@ if (token){
             pero almenos iniciaste sesion pije es lo que importa 
           </p>
           <h2>aca deberiamos tener una peticion para cargar las clases y los repositorios, o un boton que las deslice y que eso lo cargue XD </h2>
+
+          <ObtenerClases/>
         </div>
         
       </section>

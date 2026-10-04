@@ -38,16 +38,17 @@ return (
 <>
 
 <form onSubmit={registro} className = "register-form">
-<input type= "name" onChange={(e) => setNombre(e.target.value)}>
+<input type= "name" placeholder ="Nombre" onChange={(e) => setNombre(e.target.value)}>
 </input>
-<input type= "email" onChange={(e) => setMail(e.target.value)}>
+<input type= "appelido" placeholder ="Apellido" onChange={(e) => setApellido(e.target.value)}>
 </input>
-<input type= "año_division" onChange={(e) => setAño_Division(e.target.value)}>
+<input type= "email" placeholder ="Email" onChange={(e) => setMail(e.target.value)}>
 </input>
-<input type= "password" onChange={(e) => setContraseña(e.target.value)}>
+<input type= "año_division" placeholder ="Año y Division" onChange={(e) => setAño_Division(e.target.value)}>
 </input>
-<input type= "appelido" onChange={(e) => setApellido(e.target.value)}>
+<input type= "password"  placeholder ="Contraseña" onChange={(e) => setContraseña(e.target.value)}>
 </input>
+
 <button type="submit" className="ingresar-button">
               Ingresar
             </button>
