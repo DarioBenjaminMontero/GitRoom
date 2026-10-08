@@ -28,6 +28,11 @@ repositorios.belongsToMany(usuarios, {through: UsuariosRepositorios,
     foreignKey: 'id_repo',
     otherKey:'id_usuario'
 })
+repositorios.hasMany(UsuariosRepositorios, { foreignKey: 'id_repo' });
+UsuariosRepositorios.belongsTo(repositorios, { foreignKey: 'id_repo' });
+
+usuarios.hasMany(UsuariosRepositorios, { foreignKey: 'id_usuario' });
+UsuariosRepositorios.belongsTo(usuarios, { foreignKey: 'id_usuario' });
 Chats.belongsToMany(usuarios, {
     through: chatsUsuarios,
     foreignKey: 'id_chat',
@@ -51,6 +56,8 @@ Commits.hasMany(Commits, {
   as: 'hijos',
   foreignKey: 'id_commit_padre',
 });
+clases.hasMany(repositorios, { foreignKey: 'id_clase' });
+repositorios.belongsTo(clases, { foreignKey: 'id_clase' });
 
 
 module.exports ={

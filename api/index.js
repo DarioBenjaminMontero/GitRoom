@@ -21,6 +21,7 @@ const {
 // 2. importar rutas
 
 const routerUsuario = require('./routes/userRoutes');
+const routerRepositorio = require("./routes/repositoriosRoutes.js")
 
 const app = express();
 
@@ -31,7 +32,7 @@ app.use(express.json());
 // 3. Montamos las rutas
 app.use('/users', routerUsuario); 
 //app.use('/posts', postRoutes); // Ej: /posts para crear, listar y dar like
-
+app.use("/repositorios", routerRepositorio)
 const puerto = 3000;
 
 // 4. Sincronización con PostgreSQL y arranque del servidor
@@ -41,7 +42,7 @@ sequelize.authenticate()
     console.log(' Conexión a la base de datos PostgreSQL establecida con éxito.');
     
     // Opcional: puedes intentar sincronizar sin detener el servidor si falla
-    sequelize.sync({ force: true }).catch(err => {
+    sequelize.sync({ force: false }).catch(err => {
       console.warn(' Advertencia: Algunas tablas no se pudieron sincronizar:', err.message);
     });
 

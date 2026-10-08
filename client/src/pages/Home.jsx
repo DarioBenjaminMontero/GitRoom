@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import ObtenerClases from './ObtenerClases.jsx'
 
 
 
@@ -21,6 +22,8 @@ if (token){
             pero almenos iniciaste sesion pije es lo que importa 
           </p>
           <h2>aca deberiamos tener una peticion para cargar las clases y los repositorios, o un boton que las deslice y que eso lo cargue XD </h2>
+
+          <ObtenerClases/>
         </div>
         
       </section>
@@ -42,6 +45,10 @@ else{
         </div>
         <div>
           <h1>Bienvenido a GitRoom</h1>
+          <h1>Your best friend for <u><b>learning</b></u></h1>
+          <p>
+            View your classes, create repositories, connect with other programmers, all here on Gitroom
+          </p>
           <p>
             Inicie sesion o cree cuenta para continuar
           </p>
