@@ -31,6 +31,9 @@ export default function Header() {
           <button id="sesion" onClick={logout}>
             Cerrar Sesión
           </button>
+          <button id="newRepo" onClick={() => navigate("newRepository")}>
+            repo
+          </button>
         </div>
 
     </section>
@@ -53,9 +56,7 @@ export default function Header() {
           <button id="registrar" onClick={() => navigate("register")}>
             Registrarse
           </button>
-          <button id="newRepo" onClick={() => navigate("newRepository")}>
-            repo
-          </button>
+          
         </div>
       </section>
 

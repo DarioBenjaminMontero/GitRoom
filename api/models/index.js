@@ -28,6 +28,11 @@ repositorios.belongsToMany(usuarios, {through: UsuariosRepositorios,
     foreignKey: 'id_repo',
     otherKey:'id_usuario'
 })
+repositorios.hasMany(UsuariosRepositorios, { foreignKey: 'id_repo' });
+UsuariosRepositorios.belongsTo(repositorios, { foreignKey: 'id_repo' });
+
+usuarios.hasMany(UsuariosRepositorios, { foreignKey: 'id_usuario' });
+UsuariosRepositorios.belongsTo(usuarios, { foreignKey: 'id_usuario' });
 Chats.belongsToMany(usuarios, {
     through: chatsUsuarios,
     foreignKey: 'id_chat',
