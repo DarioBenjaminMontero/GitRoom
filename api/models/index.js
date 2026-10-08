@@ -56,6 +56,8 @@ Commits.hasMany(Commits, {
   as: 'hijos',
   foreignKey: 'id_commit_padre',
 });
+clases.hasMany(repositorios, { foreignKey: 'id_clase' });
+repositorios.belongsTo(clases, { foreignKey: 'id_clase' });
 
 
 module.exports ={
