@@ -10,9 +10,15 @@ const [año_division, setAño_Division] = useState("")
 const [apellido, setApellido] = useState("")
 const [mail, setMail] = useState("")
 const navigate = useNavigate();
+const letras=/^[a-zA-Z0-9.#$\_\-]+$/
+const verificarmail=/^\w+@\w+\.\w+$/
+const verificaciondivicion=/^\d+°\d+$/
+const cantidad=6;
 
 const registro = async(e) =>{
 e.preventDefault()
+if(nombre.length>=cantidad&&contraseña.length>=cantidad){
+if(letras.test(nombre)&&letras.test(contraseña)&&verificarmail.test(mail)&&verificaciondivicion.test(año_division)){
 const nuevoUsuario = {
 nombre,
 contraseña,
@@ -31,6 +37,15 @@ catch(error){
 alert("error al registrarse: " + (error.response?.data?.message || error.message))
 }
 
+}
+else{
+alert("error: caracteres no permitidos")
+console.log(verificarmail.test(mail))
+}
+}
+else{
+alert("error: tiene que haber un minimo de 6 carateres")
+}
 }
 
 
