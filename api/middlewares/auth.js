@@ -9,11 +9,21 @@ const isAuth = (req,res,next) =>{
 
     try {
         jwt.verify(token,SECRET,async (err,decoded)=>{
-            if (err) return res.status(401).json({message: 'Error al acceder'})
+            
+            if (err){
+                 if (err.name === 'TokenExpiredError') {
+                    
+                    console.log("El token expiro")
+                }
+                return res.status(401).json({ message: 'Error al acceder', err })
+            
+             return res.status(401).json({message: 'Error al acceder',err})
+            }
 
                 const user = await usuarios.findByPk(decoded.id)
 
                 if(!user) return res.json({message:"Usuario no encontrado"})
+                   
 
             req.user = {
             id: user.id_usuario,

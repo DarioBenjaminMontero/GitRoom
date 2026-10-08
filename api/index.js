@@ -42,7 +42,7 @@ sequelize.authenticate()
     console.log(' Conexión a la base de datos PostgreSQL establecida con éxito.');
     
     // Opcional: puedes intentar sincronizar sin detener el servidor si falla
-    sequelize.sync({ force: true }).catch(err => {
+    sequelize.sync({ force: false }).catch(err => {
       console.warn(' Advertencia: Algunas tablas no se pudieron sincronizar:', err.message);
     });
 
