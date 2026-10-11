@@ -1,8 +1,11 @@
+import { useState } from 'react'  
 import { useNavigate } from 'react-router-dom'
 import GitRoomLogo from '../assets/GitRoom_Logo.png'
+import './header.css'
 
 export default function Header() {
   const navigate = useNavigate();
+  const [menuAbierto, setMenuAbierto] = useState(false)
   const token = localStorage.getItem('token')
   const user = JSON.parse(localStorage.getItem('user'))
   const logout = () => {
@@ -16,9 +19,29 @@ export default function Header() {
     console.log(token); 
     console.log(user)
     return (
+      
 
       
     <section id="header">
+
+      {/* ---------- BOTON DEL MENU (NUEVO) - queda fijo dentro del header ---------- */}
+      <button id="menu-boton" onClick={() => setMenuAbierto(true)}>
+        ☰
+      </button>
+
+      {/* ---------- MENU LATERAL (NUEVO) ---------- */}
+      {menuAbierto && (
+        <div className="menu-fondo" onClick={() => setMenuAbierto(false)} />
+      )}
+
+      <aside className={`menu-lateral ${menuAbierto ? "abierto" : ""}`}>
+        <button onClick={() => setMenuAbierto(false)}> Cerrar</button>
+        <button onClick={() => { navigate("/"); setMenuAbierto(false) }}> Inicio</button>
+        <button onClick={() => { navigate("/repositorios"); setMenuAbierto(false) }}> Repositorios</button>
+        <button onClick={() => { navigate("newRepository"); setMenuAbierto(false) }}> Nuevo repositorio</button>
+      </aside>
+      {/* ---------- FIN MENU LATERAL ---------- */}
+
       <img src={GitRoomLogo} width="140" height="100" alt="" onClick={() => navigate("/")} />
 
 <h2>
