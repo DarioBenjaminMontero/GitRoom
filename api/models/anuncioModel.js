@@ -1,7 +1,7 @@
 const { sequelize } = require('../config/db.js'); // o el archivo donde se ponga la base de datos
 const { DataTypes } = require('sequelize');
 
-const Anuncios = sequelize.define('Anuncios', {
+const Anuncios = sequelize.define('anuncios', {
     id_anuncio: {
         type: DataTypes.INTEGER,
         autoIncrement: true,

@@ -21,11 +21,16 @@ const versionesArchivos = sequelize.define('versionesArchivos', {
         allowNull: false,
         references:
         {
-            model: 'archivos',
+            model: 'Archivos',
             key: 'id_archivo'
         }
     },
-    conteido_Texto:
+    tipo:
+    {
+        type: DataTypes.STRING,
+        allowNull: false,
+    }, 
+    ruta_fisica:
     {
         type: DataTypes.STRING,
         allowNull: false,
