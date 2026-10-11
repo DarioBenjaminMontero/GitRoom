@@ -11,6 +11,23 @@ const crearRepositorio = async (req, res) => {
     if (req.user.id_clase) {
         id_clase = req.user.id_clase
     }
+
+
+const existeRepo = await UsuariosRepositorios.findOne({
+      where: { id_usuario: id_usuario },
+      include: [{
+        model: repositorios,
+        where: { nombre_repo: nombre_repo },
+        required: true
+      }]
+    });
+
+
+        if(existeRepo){
+return res.status(400).json({message: "ya existe"})
+        }
+
+
     const respuesta = await repositorios.create({
         es_privado: es_privado,
         descripcion: descripcion,
@@ -34,28 +51,27 @@ const crearRepositorio = async (req, res) => {
 }
 
 
+
 const consultarRepositorios = async(req, res) =>{
 const id = req.user.id
 const nombreRepositorio = req.user.nombreRepositorio
 try{
-const respuesta = await repositorios.findOne({
-where:{
-nombre_repo : nombreRepositorio
-}, include : {
-model : UsuariosRepositorios, 
-where : {
-id_usuario : id
-},
-required : true
-}
-
-})
+const respuesta = await UsuariosRepositorios.findOne({
+      where: { id_usuario: id },
+      include: [{
+        model: repositorios,
+        where: { nombre_repo: nombreRepositorio },
+        required: true
+      }]
+    });
 return res.status(200).json({ exists: !!respuesta });
 }
 catch(error){
 
+
 return res.status(500).json({ error: "Error en el servidor", details: error.message });
 }
 }
+
 
 module.exports = { crearRepositorio, consultarRepositorios }
