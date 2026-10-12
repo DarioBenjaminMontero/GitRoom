@@ -35,6 +35,30 @@ const create = async (req, res) => {
         return res.status(500).json({ error: "Error en el servidor", detalles: error.message });
     }
 }
+const unirseClase = async (req, res) =>{
 
-module.exports = { create };
+try {
+
+  const claseExistente = await clases.findOne({ where: { codigo } });
+  if(!claseExistente){
+    return res.status(404).json({message:"no se encontro una clase con ese codigo"})
+  }
+  else{
+    const userId = req.user.id
+    await clasesUsuarios.create({
+            id_clase: claseExistente.id_clase,
+            id_usuario: userId,
+            esProfesor: false
+        });
+        return res.status(201).json({ message: "Te uniste con exito a la clase", clase: claseExistente.nombreClase });
+  }
+
+} 
+catch (error) {
+    return res.status(500).json({ error: "Error en el servidor", detalles: error.message });
+}
+
+}
+
+module.exports = { create, unirseClase };
 

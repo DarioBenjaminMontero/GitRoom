@@ -22,6 +22,7 @@ const {
 
 const routerUsuario = require('./routes/userRoutes');
 const routerRepositorio = require("./routes/repositoriosRoutes.js")
+const routerClases = require ('./routes/clasesRoutes.js')
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use(express.json());
 app.use('/users', routerUsuario); 
 //app.use('/posts', postRoutes); // Ej: /posts para crear, listar y dar like
 app.use("/repositorios", routerRepositorio)
+app.use('/clases',routerClases)
 const puerto = 3000;
 
 // 4. Sincronización con PostgreSQL y arranque del servidor
