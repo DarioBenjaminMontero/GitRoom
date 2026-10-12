@@ -73,5 +73,23 @@ return res.status(500).json({ error: "Error en el servidor", details: error.mess
 }
 }
 
+const traerRepos = async (req, res) => {
+    const id = req.user.id
+    try {
+        const respuesta = await repositorios.findAll({
+            include: {
+                model: UsuariosRepositorios,
+                where: { id_usuario: id },
+                required: true,
+                attributes: []
+            }
+        })
+        return res.status(200).json(respuesta)
+    } catch (error) {
+        return res.status(500).json({ error: "Error en el servidor", details: error.message })
+    }
+}
 
-module.exports = { crearRepositorio, consultarRepositorios }
+
+
+module.exports = { crearRepositorio, consultarRepositorios, traerRepos }
