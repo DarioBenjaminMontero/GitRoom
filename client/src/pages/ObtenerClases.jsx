@@ -4,13 +4,17 @@ import axios from "axios";
 
 export default function  ClasesList() {
 
+    const token = localStorage.getItem('token')
+    
     const [clases, setClases] = useState([])
 
     useEffect(() => {
-        fecthClases()
-    }, [])
+        if (token) {
+            fecthClases();
+        }
+    }, [token]);
 
-    const token = localStorage.getItem('token')
+    
 
     if (!token) return alert ("Debes estar logueado para ver tus clases");
 
@@ -40,25 +44,40 @@ export default function  ClasesList() {
         }
     };
 
-    return  (
-        <>
+    return (
+        <div style={{ padding: "20px" }}>
             <h2>Tus Clases</h2>
-            {clases && clases.length !== 0 ? <ul>
-                {
-                clases.map((clase) => {
-                    return (
-                    <li>
-                        {clase.nombreClase}
-                    </li>
-                    )
-                })
-                
-            }
 
-            </ul>:<h2></h2>}
+            {clases.length > 0 ? (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
+                    {clases.map((clase, index) => {
+                        // Extraemos el primer profesor asignado a la clase (si existe)
+                        const profesor = clase.usuarios && clase.usuarios.length > 0 
+                            ? `${clase.usuarios[0].nombre} ${clase.usuarios[0].apellido}` 
+                            : "Profesor no asignado";
 
-            
+                        return (
+                            <div 
+                                key={clase.id_clase || index} 
+                                style={{
+                                    border: "1px solid #ccc",
+                                    borderRadius: "8px",
+                                    padding: "16px",
+                                    width: "220px"
+                                }}
+                            >
+                                <h3>{clase.nombreClase}</h3>
+                                <p style={{ color: "#666", fontSize: "14px" }}>
+                                    Creado por: {profesor}
+                                </p>
+                            </div>
+                        );
+                    })}
+                </div>
+            ) : (
+                <p>No estás inscripto en ninguna clase todavía.</p>
+            )}
+        </div>
+    );
 
-        </>
-    )
 }
