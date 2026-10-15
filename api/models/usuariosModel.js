@@ -28,6 +28,12 @@ const usuarios = sequelize.define('usuarios', {
     año_division:{
         type:DataTypes.STRING(8),
         allowNull:false
+    }, 
+    
+    foto_perfil: {
+
+        type: DataTypes.STRING(150),
+        allowNull: true
     }
 
 }, {

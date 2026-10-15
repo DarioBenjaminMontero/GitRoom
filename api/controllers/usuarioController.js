@@ -116,8 +116,23 @@ const obtenerClases = async (req, res) => {
     }
 };
 
+const obtenerDatosUsuario = async (req, res) => {
+const id = req.user.id;
+try {
+    const usuario = await usuarios.findByPk(id, {
+        attributes: ['nombre', 'apellido', 'mail', 'año_division', 'foto_perfil']
+    });
+    res.status(200).json(usuario);
+}
+catch(error){
+
+return res.status(500).json({ message: 'Error al obtener los datos del usuario' });
+
+}
+
+}
 
 
 module.exports = {
-    login, Registro, obtenerClases
+    login, Registro, obtenerClases, obtenerDatosUsuario
 };

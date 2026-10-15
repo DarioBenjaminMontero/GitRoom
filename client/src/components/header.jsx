@@ -62,6 +62,7 @@ export default function Header() {
           <button onClick={() => { navigate("/"); setMenuAbierto(false); }}>Inicio</button>
           <button onClick={() => { navigate("/repositorios"); setMenuAbierto(false); }}>Repositorios</button>
           <button onClick={() => { navigate("newRepository"); setMenuAbierto(false); }}>Nuevo repositorio</button>
+          <button onClick={() => { navigate("perfil"); setMenuAbierto(false); }}>Perfil</button>
 
           <hr style={{ margin: "12px 0", borderColor: "#444" }} />
 

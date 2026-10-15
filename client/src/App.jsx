@@ -6,6 +6,7 @@ import Login from './pages/login.jsx'
 import Register from './pages/registro.jsx'
 import Repositorios from './pages/repositorios.jsx'
 import NewRepository from './pages/NewRepository.jsx'
+import Perfil from './pages/perfil.jsx'
 import './App.css'
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path='/register' element ={<Register/>}></Route>
           <Route path='/repositorios' element ={<Repositorios/>}></Route>
           <Route path='/newRepository' element ={<NewRepository/>}></Route>
+          <Route path='/perfil' element ={<Perfil/>}></Route>
         </Routes>
       
     </>
