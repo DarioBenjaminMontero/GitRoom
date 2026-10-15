@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const {  create,unirseClase } = require("../controllers/clasesController.js");
-const { create: createAnuncio } = require("../controllers/anunciosController.js");
+const { create: createAnuncio } = require("../controllers/anunciosControllers.js");
 const {isAuth} = require("../middlewares/auth.js")
 
 const router = Router();
