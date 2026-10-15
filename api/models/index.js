@@ -78,6 +78,15 @@ repositorios.belongsTo(clases, { foreignKey: 'id_clase' });
 clases.hasMany(Anuncios, { foreignKey: 'id_clase' });
 Anuncios.belongsTo(clases, { foreignKey: 'id_clase' });
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+module.exports ={
+=======
+usuarios.hasMany(Anuncios, { foreignKey: 'id_usuario' });
+Anuncios.belongsTo(usuarios, { foreignKey: 'id_usuario' });
+
+>>>>>>> Stashed changes
 Anuncios.hasMany(Comentarios, { foreignKey : 'id_anuncio'})
 Comentarios.belongsTo(Anuncios, {foreignKey : 'id_anuncio' })
 
@@ -102,6 +111,10 @@ Archivos.hasMany(versionesArchivos, {foreignKey : 'id_archivo'})
 versionesArchivos.belongsTo(Commits, {foreignKey : 'id_commit'})
 Commits.hasMany(versionesArchivos, {foreignKey: 'id_commit'})
 module.exports = {
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
     clases,
     Anuncios,
     Chats,
