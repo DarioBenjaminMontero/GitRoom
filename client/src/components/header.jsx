@@ -72,19 +72,9 @@ export default function Header() {
             {clases.length > 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {clases.map((clase, index) => (
-                  <button
+                  <button id="botonBarra"
                     key={clase.id_clase || index}
                     onClick={() => setMenuAbierto(false)}
-                    style={{
-                      textAlign: "left",
-                      backgroundColor: "#2e335a",
-                      color: "white",
-                      border: "none",
-                      padding: "8px",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      fontSize: "13px"
-                    }}
                   >
                     📘 {clase.nombreClase}
                   </button>
