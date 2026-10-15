@@ -34,14 +34,3 @@
 .menu-lateral .menu-cerrar-sesion {
   margin-top: auto;
 }
-
-.botonBarra{
-                        text-Align: "left";
-                      background: "#2e335a";
-                      color: "white";
-                      border: "none";
-                      padding: "8px";
-                      border-Radius: "4px";
-                      cursor: "pointer";
-                      font-Size: "13px";
-}
