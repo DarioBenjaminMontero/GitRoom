@@ -33,7 +33,7 @@ function Perfil() {
             const response = await axios.get("http://localhost:3000/repositorios/traerRepos", {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            
+           
             setRepos(response.data);
         }
         catch (error) {
@@ -75,7 +75,7 @@ const fetchClases = async () => {
         fetchClases();
     }, []);
 
-    // 3. Calculamos los recientes directamente a partir del estado `repos` 
+    // 3. Calculamos los recientes directamente a partir del estado `repos`
     // (se recalculará automáticamente cada vez que `repos` cambie)
     const recientes = [...repos]
         .sort((a, b) => new Date(b.fecha_creacion) - new Date(a.fecha_creacion))
@@ -83,7 +83,7 @@ const fetchClases = async () => {
 
 
         const recientesClases = [...clases]
-        .sort((a, b) => new Int(b.id_clase) - new Int(a.id_clase))
+        .sort((a, b) => new Number(b.id_clase) - new Number(a.id_clase))
         .slice(0, 3);
         console.log(clases)
 
@@ -133,7 +133,7 @@ const fetchClases = async () => {
                                     {clase.nombreClase}
                                 </Link>
                                 <span className="etiqueta">{clase.codigo}</span>
-                                
+                               
                             </div>
                         ))
                     )}
