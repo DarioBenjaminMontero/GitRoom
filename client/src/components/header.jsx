@@ -136,6 +136,9 @@ export default function Header() {
           <button id="newRepo" onClick={() => navigate("newRepository")}>
             repo
           </button>
+          <button id="chats" onClick={() => navigate("/chats")}>
+            chats
+          </button>
           {/* Botón superior que abre el modal */}
           <button onClick={() => setModalUnirseAbierto(true)}>Unirse A una clase</button>
         </div>
