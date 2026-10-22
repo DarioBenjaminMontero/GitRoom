@@ -47,6 +47,21 @@ const cargarChats = async (req, res) => {
         return res.status(500).json({ error: "Error en el servidor", detalles: error.message });
     }
 }
+const cargarMensajes = async (req, res) => {
+    try {
+       const idUsuario = req.user.id
+       const id_chat = req.body.id_chat;
+   
+        const mensajes = await Mensajes.findAll({
+          where:{id_chat:id_chat}
+        });
+        return res.status(200).json(mensajes)
+    }
+    catch (error) {
+        console.error("Error al obtener los mensajes:", error);
+        return res.status(500).json({ error: "Error en el servidor", detalles: error.message });
+    }
+}
 
 const mandarMensaje = async (req, res) => {
     try {
@@ -83,4 +98,4 @@ const mandarMensaje = async (req, res) => {
 }
 
 
-module.exports = { crearChat, unirseChat, mandarMensaje, cargarChats };
+module.exports = { crearChat, unirseChat, mandarMensaje, cargarChats,cargarMensajes };

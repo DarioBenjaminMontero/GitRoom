@@ -11,28 +11,64 @@ export default function ChatsPage() {
   const [mensajes, setMensajes] = useState([]);
   const [nuevoMensaje, setNuevoMensaje] = useState('');
   
+  const user = JSON.parse(localStorage.getItem('user'));
+  const idActual=user.id
+ 
   const token = localStorage.getItem('token');
 
   // Cargar la lista de chats al entrar a la página
   useEffect(() => {
+
+    // Escuchar mensajes nuevos en tiempo real vía Socket.io
+    
     const obtenerChats = async () => {
       try {
         const response = await axios.get('http://localhost:3000/chats/cargarChats', {
           headers: { Authorization: token }
         });
         setChats(response.data);
+        
       } catch (error) {
         console.error("Error al cargar los chats:", error);
       }
+      
     };
-
+    
     obtenerChats();
   }, [token]);
+  useEffect(() => {
+    socket.on('recibir_mensaje', (mensajeNuevo) => {
+      // Añadimos el mensaje nuevo respetando los mensajes que ya estaban en pantalla
+      setMensajes((prevMensajes) => [...prevMensajes, mensajeNuevo]);
+    });
+
+    // Limpieza: cuando salimos de la página o cambia el componente, apagamos el socket para que no se duplique
+    return () => {
+      socket.off('recibir_mensaje');
+    };
+  }, []);
+  const obtenerMensajes = async (chat)=>{
+     try {
+      const idChat = chat.id_chat 
+        const response = await axios.post('http://localhost:3000/chats/cargarMensajes',{
+          id_chat: idChat
+        }, {
+          headers: { Authorization: token }
+        });
+        setMensajes(response.data);
+        console.log(mensajes)
+        
+      } catch (error) {
+        console.error("Error al cargar los chats:", error);
+      }
+  }
 
   // Manejar la selección de un chat y unirse a la sala de Socket.io
   const seleccionarChat = (chat) => {
     setChatActivo(chat);
     socket.emit('unirse_a_chat', chat.id_chat);
+    
+   obtenerMensajes(chat)
   };
 
   // Enviar mensaje usando tu endpoint POST
@@ -49,6 +85,7 @@ export default function ChatsPage() {
       });
 
       setNuevoMensaje('');
+      obtenerMensajes(chatActivo)
     } catch (error) {
       console.error("Error al enviar mensaje:", error);
     }
@@ -87,6 +124,16 @@ export default function ChatsPage() {
             
             <div className="mensajes-container">
               <p className="placeholder-mensaje">Aquí aparecerán los mensajes del chat #{chatActivo.id_chat}</p>
+             
+              {mensajes.map((m, index) => {
+                const esMio = m.id_emisor ===idActual
+                return(
+                  <div key={index} className={`mensaje-item ${esMio ? 'propio' : 'ajeno'}`}>
+                    <p>{m.mensaje}</p>
+                  </div>
+                )})}
+              
+            
             </div>
 
             <form onSubmit={enviarMensaje} className="chat-form">
