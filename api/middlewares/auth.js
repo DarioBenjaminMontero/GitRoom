@@ -16,8 +16,7 @@ const isAuth = (req,res,next) =>{
                     console.log("El token expiro")
                 }
                 return res.status(401).json({ message: 'Error al acceder', err })
-            
-             return res.status(401).json({message: 'Error al acceder',err})
+      
             }
 
                 const user = await usuarios.findByPk(decoded.id)

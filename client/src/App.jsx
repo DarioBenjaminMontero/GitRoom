@@ -6,7 +6,7 @@ import Login from './pages/login.jsx'
 import Register from './pages/registro.jsx'
 import Repositorios from './pages/repositorios.jsx'
 import NewRepository from './pages/NewRepository.jsx'
-import Perfil from './pages/perfil.jsx'
+import Perfil from './pages/Perfil.jsx'
 import './App.css'
 
 function App() {
