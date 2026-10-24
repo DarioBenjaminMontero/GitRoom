@@ -1,4 +1,5 @@
 const { Anuncios, clases, clasesUsuarios } = require('../models/index.js');
+const { Comentarios } = require('../models/comentariosModel.js');
 const tiposAnuncio = new Set(['anuncio', 'tarea']);
 
 const create = async (req, res) => {
@@ -45,4 +46,33 @@ const create = async (req, res) => {
     }
 };
 
-module.exports = { create };
+const createComment = async (req, res) => {
+    const idAnuncio = Number(req.params.idAnuncio);
+    const { texto } = req.body;
+
+    if (!Number.isInteger(idAnuncio) || idAnuncio <= 0) {
+        return res.status(400).json({ message: 'El id del anuncio no es válido' });
+    }
+
+    if (typeof texto !== 'string' || !texto.trim()) {
+        return res.status(400).json({ message: 'El comentario es obligatorio' });
+    }
+
+    try {
+        const anuncio = await Anuncios.findByPk(idAnuncio);
+        if (!anuncio) {
+            return res.status(404).json({ message: 'No se encontró el anuncio' });
+        }
+
+        const comentario = await Comentarios.create({
+            id_anuncio: idAnuncio,
+            texto: texto.trim()
+        });
+
+        return res.status(201).json({ message: 'Comentario creado', comentario });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error al crear el comentario', detalles: error.message });
+    }
+};
+
+module.exports = { create, createComment };
