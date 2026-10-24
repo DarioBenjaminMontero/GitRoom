@@ -88,14 +88,14 @@ const obtenerClases = async (req, res) => {
         const usuarioConClases = await usuarios.findByPk(idUsuario, {
             include: {
                 model: clases,
-                attributes: ['id_clase', 'nombreClase'],
+                attributes: ['id_clase', 'nombreClase', 'codigo'],
                 through: { attributes: [] }, // Oculta datos intermedios de la relacion del alumno
                 include: [
                     {
                         model: usuarios,
                         attributes: ['nombre', 'apellido', 'mail'],
                         through: {
-                            where: { esProfesor: true }, // 👈 Filtra por profesor en la tabla intermedia
+                            where: { esProfesor: true }, 
                             attributes: []
                         }
                     }
