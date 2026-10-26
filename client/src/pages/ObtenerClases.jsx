@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 
-export default function ClasesList() {
+export default function ClasesList({ refreshTrigger }) {
 
     const token = localStorage.getItem('token')
 
@@ -24,7 +24,7 @@ export default function ClasesList() {
         if (token) {
             fecthClases();
         }
-    }, [token]);
+    }, [token, refreshTrigger]);
 
 
 

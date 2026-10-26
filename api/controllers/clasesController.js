@@ -2,7 +2,8 @@ const { clases } = require("../models/index.js")
 const { clasesUsuarios } = require("../models/index.js")
 
 const create = async (req, res) => {
-    const { idUsuario, nombreClase } = req.body;
+    const { nombreClase } = req.body;
+    const idUsuario = req.user.id
     let existe = true;
     let codigo;
 
