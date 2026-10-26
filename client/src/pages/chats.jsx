@@ -10,7 +10,8 @@ export default function ChatsPage() {
   const [chatActivo, setChatActivo] = useState(null);
   const [mensajes, setMensajes] = useState([]);
   const [nuevoMensaje, setNuevoMensaje] = useState('');
-  
+  const [mailChat, setMailChat] = useState('');
+
   const user = JSON.parse(localStorage.getItem('user'));
   const idActual=user.id
  
@@ -71,6 +72,29 @@ export default function ChatsPage() {
    obtenerMensajes(chat)
   };
 
+  // Crear un chat privado con el usuario del mail ingresado
+  const crearChat = async (e) => {
+    e.preventDefault();
+    if (!mailChat.trim()) return;
+
+    try {
+      const response = await axios.post('http://localhost:3000/chats/crear', {
+        mail: mailChat
+      }, {
+        headers: { Authorization: token }
+      });
+
+      if (!chats.some(c => c.id_chat === response.data.id_chat)) {
+        setChats([...chats, response.data]);
+      }
+      setMailChat('');
+      seleccionarChat(response.data);
+    } catch (error) {
+      console.error("Error al crear el chat:", error);
+      alert(error.response?.data?.message || "No se pudo crear el chat");
+    }
+  };
+
   // Enviar mensaje usando tu endpoint POST
   const enviarMensaje = async (e) => {
     e.preventDefault();
@@ -96,6 +120,18 @@ export default function ChatsPage() {
       {/* Columna Izquierda: Lista de Chats */}
       <div className="chats-sidebar">
         <h2>Tus Chats</h2>
+        <form onSubmit={crearChat} className="chat-form">
+          <input
+            type="email"
+            placeholder="Mail del usuario..."
+            value={mailChat}
+            onChange={(e) => setMailChat(e.target.value)}
+            className="chat-input"
+          />
+          <button type="submit" className="btn-enviar">
+            +
+          </button>
+        </form>
         {chats.length > 0 ? (
           chats.map((chat) => (
             <div 

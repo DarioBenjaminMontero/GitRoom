@@ -6,13 +6,42 @@ const {usuarios} = require ('../models/index.js')
 
 
 const crearChat = async (req, res) => {
-
     try {
+        const idUsuario = req.user.id
+        const { mail } = req.body
+        const otroUsuario = await usuarios.findOne({ where: { mail: mail } })
+        
+        if (!otroUsuario) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
 
+        if (otroUsuario.id_usuario === idUsuario) {
+            return res.status(400).json({ message: "No podes crear un chat con vos mismo" });
+        }
 
+        // Si ya hay un chat privado entre los dos, no se crea otro
+        const chatsDelUsuario = await chatsUsuarios.findAll({ where: { id_usuario: idUsuario } })
+        const chatExistente = await chatsUsuarios.findOne({
+            where: {
+                id_chat: chatsDelUsuario.map(c => c.id_chat),
+                id_usuario: otroUsuario.id_usuario
+            }
+        })
+        if (chatExistente) {
+            return res.status(400).json({ message: "Ya tenes un chat con este usuario" });
+        }
+
+        const chat = await Chats.create({ es_privado: true })
+        await chatsUsuarios.bulkCreate([
+            { id_chat: chat.id_chat, id_usuario: idUsuario },
+            { id_chat: chat.id_chat, id_usuario: otroUsuario.id_usuario }
+        ])
+
+        return res.status(201).json(chat)
     }
-    catch (err) {
-
+    catch (error) {
+        console.error("Error al crear el chat:", error);
+        return res.status(500).json({ error: "Error en el servidor", detalles: error.message });
     }
 }
 const unirseChat = async (req, res) => {
