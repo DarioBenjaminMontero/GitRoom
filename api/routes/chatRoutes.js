@@ -7,5 +7,6 @@ const router = Router();
 router.get('/cargarChats',isAuth,cargarChats)
 router.post('/cargarMensajes',isAuth,cargarMensajes)
 router.post('/mensaje', isAuth, mandarMensaje);
+router.post('/crear', isAuth, crearChat);
 
 module.exports = router;
