@@ -21,9 +21,12 @@ const crearChat = async (req, res) => {
 
         // Si ya hay un chat privado entre los dos, no se crea otro
         const chatsDelUsuario = await chatsUsuarios.findAll({ where: { id_usuario: idUsuario } })
+        const chatsPrivados = await Chats.findAll({
+            where: { id_chat: chatsDelUsuario.map(c => c.id_chat), es_privado: true }
+        })
         const chatExistente = await chatsUsuarios.findOne({
             where: {
-                id_chat: chatsDelUsuario.map(c => c.id_chat),
+                id_chat: chatsPrivados.map(c => c.id_chat),
                 id_usuario: otroUsuario.id_usuario
             }
         })
