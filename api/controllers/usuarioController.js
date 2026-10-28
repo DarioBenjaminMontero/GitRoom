@@ -132,6 +132,26 @@ const obtenerDatosUsuario = async (req, res) => {
     }
 }
 
+    const obtenerPerfilUsuario = async (req, res) => {
+    const id = Number(req.params.id);
+
+    try {
+        const usuario = await usuarios.findByPk(id, {
+            attributes: ['id_usuario', 'nombre', 'apellido', 'mail', 'año_division', 'foto_perfil']
+        });
+
+        if (!usuario) {
+            return res.status(404).json({ message: ' usuario no encontrado' });
+        }
+
+        return res.status(200).json(usuario);
+    } catch (error) {
+        return res.status(500).json({ message: 'error al obtener el perfil del usuario' });
+    }
+};
+
+
+
 const editarFotoPerfil = async (req, res) => {
 
     try {
@@ -175,5 +195,5 @@ const editarFotoPerfil = async (req, res) => {
 
 
 module.exports = {
-    login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil
+    login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario
 };
