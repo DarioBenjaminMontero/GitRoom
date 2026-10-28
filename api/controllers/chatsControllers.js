@@ -44,16 +44,6 @@ const crearChat = async (req, res) => {
         return res.status(500).json({ error: "Error en el servidor", detalles: error.message });
     }
 }
-const unirseChat = async (req, res) => {
-
-    try {
-
-
-    }
-    catch (err) {
-
-    }
-}
 const cargarChats = async (req, res) => {
     try {
        const idUsuario = req.user.id
@@ -127,4 +117,4 @@ const mandarMensaje = async (req, res) => {
 }
 
 
-module.exports = { crearChat, unirseChat, mandarMensaje, cargarChats,cargarMensajes };
+module.exports = { crearChat, mandarMensaje, cargarChats,cargarMensajes };

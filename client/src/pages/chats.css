@@ -160,3 +160,51 @@
 .btn-enviar:hover {
   transform: scale(1.05);
 }
+
+/* 🍪 Crear grupo */
+.grupo-crear {
+  margin-top: 25px;
+}
+
+.grupo-elegido {
+  display: inline-block;
+  background-color: #4e54c8;
+  padding: 4px 10px;
+  margin: 8px 6px 0 0;
+  border-radius: 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-crear-grupo {
+  display: block;
+  margin-top: 10px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);
+  color: white;
+  cursor: pointer;
+}
+
+.btn-crear-grupo:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.grupo-crear .chat-input {
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* 🍪 En los grupos el nombre del autor va arriba de la burbuja */
+.mensaje-item.ajeno:has(.mensaje-autor) {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.mensaje-autor {
+  font-size: 12px;
+  color: #00ffcc;
+  margin: 0 0 3px 8px;
+}
