@@ -101,6 +101,10 @@ Archivos.hasMany(versionesArchivos, {foreignKey : 'id_archivo'})
 
 versionesArchivos.belongsTo(Commits, {foreignKey : 'id_commit'})
 Commits.hasMany(versionesArchivos, {foreignKey: 'id_commit'})
+
+usuarios.hasMany(Anuncios, { foreignKey: 'id_usuario' });
+Anuncios.belongsTo(usuarios, { foreignKey: 'id_usuario' });
+
 module.exports = {
     clases,
     Anuncios,
