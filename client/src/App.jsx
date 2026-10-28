@@ -6,6 +6,7 @@ import Home from './pages/Home.jsx'
 import Login from './pages/login.jsx'
 import Register from './pages/registro.jsx'
 import Repositorios from './pages/repositorios.jsx'
+import RepositorioCarpetas from './pages/repositorioCarpetas.jsx'
 import NewRepository from './pages/NewRepository.jsx'
 import Perfil from './pages/Perfil.jsx'
 import Chat from './pages/chats.jsx'
@@ -29,6 +30,7 @@ function App() {
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
         <Route path='/repositorios' element={<Repositorios />} />
+        <Route path='/repositorios/:id' element={<RepositorioCarpetas/>}></Route>
         <Route path='/newRepository' element={<NewRepository />} />
         <Route path='/perfil' element={<Perfil />} />
         <Route path='/chats' element={<Chat />} />
