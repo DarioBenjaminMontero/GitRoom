@@ -1,5 +1,8 @@
+const fs = require('fs/promises');
+const path = require('path');
 const { Anuncios, clases, clasesUsuarios } = require('../models/index.js');
 const { Comentarios } = require('../models/comentariosModel.js');
+const { sequelize } = require('../config/db.js');
 const tiposAnuncio = new Set(['anuncio', 'tarea']);
 
 const create = async (req, res) => {
@@ -32,12 +35,25 @@ const create = async (req, res) => {
             return res.status(403).json({ message: 'Solo el profesor de la clase puede crear anuncios' });
         }
 
-        const anuncio = await Anuncios.create({
-            id_usuario: req.user.id,
-            id_clase: idClase,
-            tipo,
-            fecha_publicacion: new Date(),
-            contenido: contenido.trim()
+           const anuncio = await sequelize.transaction(async (transaction) => {
+            const nuevoAnuncio = await Anuncios.create({
+                id_usuario: req.user.id,
+                id_clase: idClase,
+                tipo,
+                fecha_publicacion: new Date(),
+                contenido: contenido.trim()
+            }, { transaction });
+
+            const directorioAnuncio = path.join(
+                __dirname,
+                '..',
+                'uploads',
+                'anuncios',
+                `anuncio-${nuevoAnuncio.id_anuncio}`
+            );
+            await fs.mkdir(directorioAnuncio, { recursive: true });
+
+            return nuevoAnuncio;
         });
 
         return res.status(201).json({ message: 'Anuncio creado', anuncio });
