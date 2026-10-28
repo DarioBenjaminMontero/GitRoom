@@ -80,7 +80,7 @@ export function CrearGrupo({ token, onCreado }) {
         </span>
       ))}
 
-      {/* 🍪 Hace falta un nombre y al menos 2 personas ademas de vos (un grupo es de mas de 2) */}
+      {/* 🍪 Hace falta un nombre y al menos 2 personas ademas del usuario que crea el grupo (un grupo es de mas de 2) */}
       <button onClick={crearGrupo} disabled={!nombre.trim() || elegidos.length < 2} className="btn-crear-grupo">
         Crear grupo
       </button>

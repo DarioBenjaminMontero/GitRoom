@@ -50,6 +50,7 @@ export default function ChatsPage() {
       socket.off('recibir_mensaje');
     };
   }, []);
+  
   // 🍪 En los grupos traemos los integrantes para saber quien mando cada mensaje
   useEffect(() => {
     if (!chatActivo || chatActivo.es_privado) return;

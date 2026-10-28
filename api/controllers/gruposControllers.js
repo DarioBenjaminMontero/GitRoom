@@ -1,7 +1,7 @@
 const { Op } = require("sequelize")
 const { Chats, chatsUsuarios, usuarios } = require("../models/index.js")
 
-// 🍪 Busca usuarios cuyo mail contenga lo que se va escribiendo (sin incluirte a vos)
+// 🍪 Busca usuarios cuyo mail contenga lo que se va escribiendo
 const buscarUsuarios = async (req, res) => {
     try {
         const encontrados = await usuarios.findAll({
@@ -20,7 +20,7 @@ const buscarUsuarios = async (req, res) => {
     }
 }
 
-// 🍪 Crea un chat grupal (es_privado: false) con vos y los usuarios elegidos
+// 🍪 Crea un chat grupal
 const crearGrupo = async (req, res) => {
     try {
         const ids = [req.user.id, ...req.body.ids_usuarios]
