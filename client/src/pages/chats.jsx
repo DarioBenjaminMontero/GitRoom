@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { io } from 'socket.io-client';
+import { CrearGrupo } from './grupos.jsx';
 
 
 const socket = io("http://localhost:3000");
@@ -11,6 +12,7 @@ export default function ChatsPage() {
   const [mensajes, setMensajes] = useState([]);
   const [nuevoMensaje, setNuevoMensaje] = useState('');
   const [mailChat, setMailChat] = useState('');
+  const [miembros, setMiembros] = useState([]);
 
   const user = JSON.parse(localStorage.getItem('user'));
   const idActual=user.id
@@ -48,6 +50,18 @@ export default function ChatsPage() {
       socket.off('recibir_mensaje');
     };
   }, []);
+  
+  // 🍪 En los grupos traemos los integrantes para saber quien mando cada mensaje
+  useEffect(() => {
+    if (!chatActivo || chatActivo.es_privado) return;
+    axios.post('http://localhost:3000/chats/cargarMiembros', {
+      id_chat: chatActivo.id_chat
+    }, {
+      headers: { Authorization: token }
+    })
+      .then((response) => setMiembros(response.data))
+      .catch((error) => console.error("Error al cargar los miembros:", error));
+  }, [chatActivo, token]);
   const obtenerMensajes = async (chat)=>{
      try {
       const idChat = chat.id_chat 
@@ -72,7 +86,7 @@ export default function ChatsPage() {
    obtenerMensajes(chat)
   };
 
-  // Crear un chat privado con el usuario del mail ingresado
+  // 🍪 Crear un chat privado con el usuario del mail ingresado
   const crearChat = async (e) => {
     e.preventDefault();
     if (!mailChat.trim()) return;
@@ -140,6 +154,7 @@ export default function ChatsPage() {
               className={`chat-item ${chatActivo?.id_chat === chat.id_chat ? 'activo' : ''}`}
             >
               <strong>Chat #{chat.id_chat}</strong>
+              {!chat.es_privado && <span className="chat-participants"> (Grupo) {chat.nombre}</span>}
               <p className="chat-participants">
                 {chat.usuarios?.map(u => u.nombre).join(', ')}
               </p>
@@ -148,6 +163,13 @@ export default function ChatsPage() {
         ) : (
           <p className="no-chats">No tienes chats disponibles.</p>
         )}
+        <CrearGrupo
+          token={token}
+          onCreado={(grupo) => {
+            setChats([...chats, grupo]);
+            seleccionarChat(grupo);
+          }}
+        />
       </div>
 
       {/* Columna Derecha: Ventana del Chat Activo */}
@@ -155,7 +177,10 @@ export default function ChatsPage() {
         {chatActivo ? (
           <>
             <div className="chat-header">
-              <h3>Chat con: {chatActivo.usuarios?.map(u => u.nombre).join(', ')}</h3>
+              {/* 🍪 En los grupos se muestra el nombre del grupo en vez de "Chat con:" */}
+              {chatActivo.es_privado
+                ? <h3>Chat con: {chatActivo.usuarios?.map(u => u.nombre).join(', ')}</h3>
+                : <h3>{chatActivo.nombre}</h3>}
             </div>
             
             <div className="mensajes-container">
@@ -165,6 +190,11 @@ export default function ChatsPage() {
                 const esMio = m.id_emisor ===idActual
                 return(
                   <div key={index} className={`mensaje-item ${esMio ? 'propio' : 'ajeno'}`}>
+                    {!chatActivo.es_privado && !esMio && (
+                      <small className="mensaje-autor">
+                        {miembros.find(u => u.id_usuario === m.id_emisor)?.nombre}
+                      </small>
+                    )}
                     <p>{m.mensaje}</p>
                   </div>
                 )})}
