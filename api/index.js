@@ -3,7 +3,7 @@ const http = require('http');//🐸http es necesario para que socket.io funcione
 const { Server } = require('socket.io');
 const cors = require('cors');
 const { sequelize } = require('./config/db.js');
-
+const path = require('path');
 // 1. importar modelos para que aparescan en dbeaber
 const {
     clases,
@@ -21,6 +21,7 @@ const {
     Commits
 } = require('./models/index.js');
 // 2. importar rutas
+
 
 const routerUsuario = require('./routes/userRoutes');
 const routerRepositorio = require("./routes/repositoriosRoutes.js")
@@ -45,7 +46,7 @@ app.use('/users', routerUsuario);
 app.use("/repositorios", routerRepositorio)
 app.use('/clases',routerClases)
 app.use('/chats', routerChats)
-
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 //🐸esto nos sirve para saber que usuario esta en un chat, si lo esta o esta desconectado
 io.on('connection', (socket) => {
     console.log(`Usuario conectado: ${socket.id}`);

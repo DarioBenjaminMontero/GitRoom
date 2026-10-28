@@ -6,7 +6,7 @@ import ObtenerClases from './ObtenerClases.jsx'
 
 import GitRoomLogo from '../assets/GitRoom_Logo.png'
 
-export default function Home() {
+export default function Home({ refreshTrigger }) {
  const token = localStorage.getItem("token")
 if (token){
    return (
@@ -23,7 +23,7 @@ if (token){
           </p>
           <h2>aca deberiamos tener una peticion para cargar las clases y los repositorios, o un boton que las deslice y que eso lo cargue XD </h2>
 
-          <ObtenerClases/>
+          <ObtenerClases refreshTrigger={refreshTrigger} />
         </div>
         
       </section>
