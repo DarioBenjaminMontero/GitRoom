@@ -1,0 +1,43 @@
+const jwt = require ('jsonwebtoken')
+const { usuarios } = require('../models/usuariosModel.js')
+
+const SECRET = 'Ranas_Todas_Flacas_Musculosas'
+
+const authJoinClass = (req,res,next) =>{
+    const token = req.headers['authorization'].split(" ")[1] || req.headers['authorization']
+    console.log(token)
+const { codigo } = req.body
+    try {
+        jwt.verify(token,SECRET,async (err,decoded)=>{
+           
+            if (err){
+                 if (err.name === 'TokenExpiredError') {
+                   
+                    console.log("El token expiro")
+                }
+                return res.status(401).json({ message: 'Error al acceder', err })
+           
+             
+            }
+
+                const user = await usuarios.findByPk(decoded.id)
+
+                if(!user) return res.json({message:"Usuario no encontrado"})
+                   
+
+            req.user = {
+            id: user.id_usuario,
+            codigo: codigo
+            }
+
+           
+       
+        next()
+        })
+    }
+    catch (error){
+        return res.status(500).json({ message: "Error interno en la autenticación" });
+    }
+}
+
+module.exports = {authJoinClass}

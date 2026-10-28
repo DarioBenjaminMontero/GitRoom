@@ -15,7 +15,9 @@
     "express": "^5.2.1",
     "i": "^0.3.7",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.4.0",
     "pg": "^8.23.0",
-    "sequelize": "^6.37.8"
+    "sequelize": "^6.37.8",
+    "socket.io": "^4.8.4"
   }
 }

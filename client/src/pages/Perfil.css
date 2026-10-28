@@ -1,0 +1,128 @@
+/* Contenedor principal que organiza las 3 columnas ocupando más espacio */
+#envoltura {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 25px;
+    width: 95%; /* Ocupa casi todo el ancho de la pantalla */
+    max-width: 1500px; /* Ampliado para pantallas grandes */
+    margin: 30px auto;
+    padding: 0 10px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #e2e8f0;
+}
+
+/* 1. SECCIÓN DE INFORMACIÓN DE USUARIO (Izquierda) */
+#informacionUsuario {
+    flex: 1.2; /* Ligeramente más ancho */
+    order: 1;
+    background-color: #1e293b;
+    border-radius: 12px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+#imagenDePerfil {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid #b794f6;
+}
+
+#informacionUsuario h3 {
+    margin: 10px 0 5px 0;
+    font-size: 1.25rem;
+    color: #f8fafc;
+}
+
+#informacionUsuario h4 {
+    margin: 0 0 20px 0;
+    font-size: 0.9rem;
+    color: #94a3b8;
+    font-weight: normal;
+}
+
+#informacionUsuario button {
+    background-color: #7c3aed;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+}
+
+#informacionUsuario button:hover {
+    background-color: #6d28d9;
+}
+
+/* 2. SECCIÓN DE REPOSITORIOS (Centro) */
+#reposRecientes {
+    flex: 2.5; /* Mucho más ancho para que las tarjetas de repositorios respiren */
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.tarjeta-repo {
+    background-color: #1e293b;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tarjeta-repo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.2);
+}
+
+.tarjeta-repo a {
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.tarjeta-repo a:hover {
+    text-decoration: underline;
+}
+
+.etiqueta {
+    display: inline-block;
+    background-color: #334155;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.sidebar-mensaje {
+    background-color: #1e293b;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+/* 3. SECCIÓN DE CLASES (Derecha) */
+#clasesRecientes {
+    flex: 1.2; /* Ancho equilibrado con la izquierda */
+    order: 3;
+    background-color: #1e293b;
+    border-radius: 12px;
+    padding: 20px;
+    min-height: 300px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}

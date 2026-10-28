@@ -11,16 +11,16 @@ const Registro = async (req, res) => {
     const { nombre, contraseña, año_division, apellido, mail } = req.body
 
 
-const existe = await usuarios.findOne({
-    where: {
-        mail: mail
+    const existe = await usuarios.findOne({
+        where: {
+            mail: mail
+        }
+    })
+    if (existe) {
+        return;
+
+
     }
-})
-if(existe){
-return;
-
-
-}
 
 
     const contraseñaHasheada = await bcrypt.hash(contraseña, 10)
@@ -88,14 +88,14 @@ const obtenerClases = async (req, res) => {
         const usuarioConClases = await usuarios.findByPk(idUsuario, {
             include: {
                 model: clases,
-                attributes: ['id_clase', 'nombreClase'],
+                attributes: ['id_clase', 'nombreClase', 'codigo'],
                 through: { attributes: [] }, // Oculta datos intermedios de la relacion del alumno
                 include: [
                     {
                         model: usuarios,
                         attributes: ['nombre', 'apellido', 'mail'],
                         through: {
-                            where: { esProfesor: true }, // 👈 Filtra por profesor en la tabla intermedia
+                            where: { esProfesor: true },
                             attributes: []
                         }
                     }
@@ -107,7 +107,7 @@ const obtenerClases = async (req, res) => {
             return res.status(404).json({ message: 'Usuario no encontrado' });
         }
 
-        
+
         return res.status(200).json(usuarioConClases.clases);
 
     } catch (error) {
@@ -117,22 +117,83 @@ const obtenerClases = async (req, res) => {
 };
 
 const obtenerDatosUsuario = async (req, res) => {
-const id = req.user.id;
-try {
-    const usuario = await usuarios.findByPk(id, {
-        attributes: ['nombre', 'apellido', 'mail', 'año_division', 'foto_perfil']
-    });
-    res.status(200).json(usuario);
-}
-catch(error){
+    const id = req.user.id;
+    try {
+        const usuario = await usuarios.findByPk(id, {
+            attributes: ['nombre', 'apellido', 'mail', 'año_division', 'foto_perfil']
+        });
+        console.log(usuario)
+        res.status(200).json(usuario);
+    }
+    catch (error) {
 
-return res.status(500).json({ message: 'Error al obtener los datos del usuario' });
+        return res.status(500).json({ message: 'Error al obtener los datos del usuario' });
 
+    }
 }
+
+    const obtenerPerfilUsuario = async (req, res) => {
+    const id = Number(req.params.id);
+
+    try {
+        const usuario = await usuarios.findByPk(id, {
+            attributes: ['id_usuario', 'nombre', 'apellido', 'mail', 'año_division', 'foto_perfil']
+        });
+
+        if (!usuario) {
+            return res.status(404).json({ message: ' usuario no encontrado' });
+        }
+
+        return res.status(200).json(usuario);
+    } catch (error) {
+        return res.status(500).json({ message: 'error al obtener el perfil del usuario' });
+    }
+};
+
+
+
+const editarFotoPerfil = async (req, res) => {
+
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No se subió ninguna imagen' });
+        }
+        const userId = req.user.id; // El ID del usuario
+        const filename = req.file.filename;
+
+        const actualizar = await usuarios.update({
+
+            foto_perfil: filename
+
+        }, {
+
+            where: {
+
+                id_usuario: userId
+
+            }
+
+        }
+        )
+
+        if (actualizar) {
+
+            return res.status(200).json({
+                message: 'Avatar actualizado con éxito',
+                filename,
+                userId
+
+            })
+        }
+
+    } catch (error) {
+
+        return res.status(500).json({ error: error.message });
+    }
 
 }
 
 
 module.exports = {
-    login, Registro, obtenerClases, obtenerDatosUsuario
+    login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario
 };
