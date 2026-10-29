@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const {  login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario } = require("../controllers/usuarioController.js");
+const {  login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario, buscarUsuarios} = require("../controllers/usuarioController.js");
 const {isAuth} = require("../middlewares/auth.js")
 const {upload}= require('../middlewares/multer.js');
 
@@ -11,4 +11,5 @@ router.get('/clases', isAuth, obtenerClases)
 router.get('/obtenerdatos', isAuth, obtenerDatosUsuario)
 router.get('/perfil/:id', isAuth, obtenerPerfilUsuario)
 router.post('/uploadImage', isAuth, upload.single('imagen'),editarFotoPerfil )
+router.get('/buscar', isAuth, buscarUsuarios);
 module.exports = router;

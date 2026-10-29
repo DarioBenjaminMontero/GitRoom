@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { useState } from 'react'
-
+import BuscarUsuarios from './pages/buscarUsuarios.jsx'
 import Header from './components/header.jsx' // 👈 Asegúrate de importar tu Header
 import Home from './pages/Home.jsx'
 import Login from './pages/login.jsx'
@@ -35,7 +35,9 @@ function App() {
         <Route path='/repositorios/:idRepo' element={<Repositorio/>}></Route>
         <Route path='/newRepository' element={<NewRepository />} />
         <Route path='/perfil' element={<Perfil />} />
+        <Route path="/perfil/:id" element={<Perfil />} />
         <Route path='/chats' element={<Chat />} />
+        <Route path="/buscar-usuarios" element={<BuscarUsuarios />} />
       </Routes>
     </>
   )

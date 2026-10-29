@@ -2,6 +2,7 @@ const { usuarios } = require("../models/index.js")
 const { repositorios } = require("../models/index.js")
 const { UsuariosRepositorios } = require("../models/index.js")
 const { clases } = require("../models/clasesModel.js")
+const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = 'Ranas_Todas_Flacas_Musculosas';
@@ -192,8 +193,37 @@ const editarFotoPerfil = async (req, res) => {
     }
 
 }
+const buscarUsuarios = async (req, res) => {
+  try {
+    const { q } = req.query;
 
+    if (!q || !q.trim()) {
+      return res.status(400).json({ mensaje: 'Ingresá un texto para buscar' });
+    }
+
+    // separa por palabras: "juan perez" busca juan Y perez
+    const palabras = q.trim().split(/\s+/);
+
+    const resultado = await usuarios.findAll({
+      where: {
+        [Op.and]: palabras.map((p) => ({
+          [Op.or]: [
+            { nombre: { [Op.like]: `%${p}%` } },
+            { apellido: { [Op.like]: `%${p}%` } },
+            { mail: { [Op.like]: `%${p}%` } },
+          ],
+        })),
+      },
+      attributes: { exclude: ['contraseña'] },
+      limit: 20,
+    });
+
+    res.json(resultado);
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al buscar usuarios', error: error.message });
+  }
+};
 
 module.exports = {
-    login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario
+    login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario, buscarUsuarios
 };
