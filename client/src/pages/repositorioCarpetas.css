@@ -3,7 +3,7 @@
   width: min(100% - 32px, 900px);
   min-height: 100vh;
   margin: 0 auto;
-  padding: 32px 0;
+  padding: 36px 0;
   color: #e6e6e6;
 }
 
@@ -14,86 +14,67 @@
   text-decoration: none;
 }
 
-.detalle-volver:hover {
-  text-decoration: underline;
-}
-
 .detalle-cabecera {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-start;
   gap: 16px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ffffff24;
 }
 
 .detalle-cabecera h1 {
-  margin: 4px 0 8px;
-  overflow-wrap: anywhere;
+  margin: 0;
 }
 
-.detalle-cabecera p {
-  margin: 0;
+.detalle-cabecera span {
   color: #a6a6ad;
 }
 
-.detalle-ruta {
-  font-size: 13px;
-}
-
-.detalle-visibilidad {
-  flex: 0 0 auto;
-  padding: 4px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  font-size: 12px;
-}
-
-.detalle-contenido {
-  margin-top: 24px;
-}
-
-.detalle-contenido h2 {
-  margin: 0 0 12px;
-  font-size: 16px;
-}
-
-.detalle-carpeta {
+.detalle-subida {
   display: grid;
-  grid-template-columns: 24px 1fr auto;
-  align-items: center;
-  width: 100%;
-  min-height: 48px;
-  padding: 10px 12px;
-  color: inherit;
-  text-align: left;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  justify-items: start;
+  gap: 14px;
+  max-width: 520px;
+  margin-top: 28px;
+  padding: 20px;
+  background: #ffffff0a;
+  border: 1px solid #ffffff20;
+  border-radius: 8px;
+}
+
+.detalle-subida h2 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.detalle-subida button {
+  padding: 9px 14px;
+  color: #101714;
+  font: inherit;
+  font-weight: 600;
+  background: #a7d8c8;
+  border: 0;
   border-radius: 6px;
   cursor: pointer;
 }
 
-.detalle-carpeta:hover {
-  background: rgba(255, 255, 255, 0.08);
+.detalle-subida button:disabled {
+  cursor: wait;
+  opacity: 0.7;
 }
 
-.detalle-carpeta-estado,
-.detalle-vacio,
+.detalle-subida p {
+  margin: 0;
+  color: #a7d8c8;
+}
+
 .detalle-error {
-  color: #a6a6ad;
-  font-size: 13px;
-}
-
-.detalle-vacio {
-  margin: 12px 0 0 36px;
+  color: #ff9a9a;
 }
 
 @media (max-width: 600px) {
   .detalle-repo {
     padding-top: 24px;
-  }
-
-  .detalle-cabecera {
-    flex-direction: column;
   }
 }
