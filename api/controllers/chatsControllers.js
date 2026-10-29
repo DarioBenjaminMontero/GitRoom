@@ -51,18 +51,33 @@ const cargarChats = async (req, res) => {
     try {
        const idUsuario = req.user.id
    
-        const chatsUsuario = await Chats.findAll({
+
+       
+    const relaciones = await chatsUsuarios.findAll({
+            where: { id_usuario: idUsuario },
+            attributes: ['id_chat']
+        });
+
+        const idsChats = relaciones.map(r => r.id_chat);
+
+        if (idsChats.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        const chatsConUsuarios = await Chats.findAll({
+            where: {
+                id_chat: idsChats
+            },
             include: [
                 {
                     model: usuarios,
-                    as: 'usuarios', 
-                    where: {  id_usuario: idUsuario}, 
-                    attributes: ['id_usuario', 'nombre'],
-                    through: { attributes: [] } 
+                    as: 'usuarios',
+                    attributes: ['id_usuario', 'nombre', 'mail'],
+                    through: { attributes: [] }
                 }
             ]
         });
-        return res.status(200).json(chatsUsuario)
+        return res.status(200).json(chatsConUsuarios)
     }
     catch (error) {
         console.error("Error al obtener los chats:", error);
