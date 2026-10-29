@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import axios from 'axios';
-import { useNavigate, Link } from "react-router-dom"; // 1. Agregado Link aquí
+import { useNavigate, Link, useParams} from "react-router-dom"; // 1. Agregado Link aquí
 import "./Perfil.css";
 function Perfil() {
+    const {id} = useParams();
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
 const [imagen, setImagen] = useState('');
     const [repos, setRepos] = useState([]);
     const [clases, setClases] = useState([]);
     const token = localStorage.getItem('token');
+    const usuarioGuardado = JSON.parse(localStorage.getItem('user')); //
+const esMiPerfil = !id || String(id) === String(usuarioGuardado?.id); //
 const [archivo, setArchivo] = useState(null);
     const [mensaje, setMensaje] = useState('');
 
@@ -48,11 +51,15 @@ const [archivo, setArchivo] = useState(null);
     };
         const ConseguirDatosUsuario = async () => {
             try {
-                const respuesta = await axios.get(`http://localhost:3000/users/obtenerdatos`, {
+                const url = id
+            ? `http://localhost:3000/users/perfil/${id}` //if
+            : `http://localhost:3000/users/obtenerdatos`;
+        const respuesta = await axios.get(url,  {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 });
+
 
                 setNombre(respuesta.data.nombre);
                 setDescripcion(respuesta.data.mail);
@@ -64,9 +71,12 @@ const [archivo, setArchivo] = useState(null);
             }
         };
 
-        const traerRepositorios = async () => {
+        const traerRepositorios = async () => { 
+              const url = id
+            ? `http://localhost:3000/repositorios/traerReposUsers/${id}` //if
+            : `http://localhost:3000/repositorios/traerRepos`;
             try {
-                const response = await axios.get("http://localhost:3000/repositorios/traerRepos", {
+                const response = await axios.get(url, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -78,8 +88,12 @@ const [archivo, setArchivo] = useState(null);
         };
 
         const fetchClases = async () => {
+
+            const url = id
+            ? `http://localhost:3000/users/clases/${id}` //if
+            : `http://localhost:3000/users/clases`;
             try {
-                const response = await axios.get('http://localhost:3000/users/clases', {
+                const response = await axios.get(url, {
                     headers: {
                         authorization: token
                     }
@@ -109,7 +123,7 @@ const [archivo, setArchivo] = useState(null);
             ConseguirDatosUsuario();
             traerRepositorios();
             fetchClases();
-        }, []);
+        }, [id]);
 
         // 3. Calculamos los recientes directamente a partir del estado `repos`
         // (se recalculará automáticamente cada vez que `repos` cambie)
@@ -127,26 +141,24 @@ const [archivo, setArchivo] = useState(null);
             <>
                 <div id="envoltura">
                     <div id="informacionUsuario">
-                        <img
-                            id="imagenDePerfil"
-                            src={imagen}
-                            alt="Foto de perfil"
-                        />
-                       <form id="avatarForm" onSubmit={handleSubirImagen}>
-                        <input type="file" id="imagenInput" name="imagen" accept="image/*" onChange={handleFileChange} required />
-                        <button type="submit">Subir Imagen</button>
-                    </form>
-                        {mensaje && <p>{mensaje}</p>}
-                        <h3>
-                            {nombre}
-                        </h3>
-                        <h4>
-                            {descripcion}
-                        </h4>
-                        <button>
-                            Editar usuario
-                        </button>
-                    </div>
+    <img
+        id="imagenDePerfil"
+        src={imagen}
+        alt="Foto de perfil"
+    />
+    {esMiPerfil && (
+        <>
+            <form id="avatarForm" onSubmit={handleSubirImagen}>
+                <input type="file" id="imagenInput" name="imagen" accept="image/*" onChange={handleFileChange} required />
+                <button type="submit">Subir Imagen</button>
+            </form>
+            {mensaje && <p>{mensaje}</p>}
+        </>
+    )}
+    <h3>{nombre}</h3>
+    <h4>{descripcion}</h4>
+    {esMiPerfil && <button>Editar usuario</button>}
+</div>
 
                     <div id="reposRecientes">
                         {recientes.length === 0 ? (

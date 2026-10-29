@@ -114,6 +114,24 @@ const traerRepos = async (req, res) => {
     }
 }
 
+const traerReposUsers = async (req, res) => {
+    const id = req.params.id
+    try {
+        const respuesta = await repositorios.findAll({
+            include: {
+                model: UsuariosRepositorios,
+                where: { id_usuario: id },
+                required: true,
+                attributes: []
+            }
+        })
+        return res.status(200).json(respuesta)
+    } catch (error) {
+        return res.status(500).json({ error: "Error en el servidor", details: error.message })
+    }
+}
+
+
 
 const traerInformacionRepositorios = async (req, res) => {
     const idRepositorio = req.user.idRepo
@@ -196,5 +214,6 @@ module.exports = {
     validarRepositorio,
     guardarArchivoRepositorio,
     traerColaboradores,
-    traerInformacionRepositorios
+    traerInformacionRepositorios,
+    traerReposUsers
 }

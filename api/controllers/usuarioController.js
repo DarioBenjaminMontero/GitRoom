@@ -117,6 +117,44 @@ const obtenerClases = async (req, res) => {
     }
 };
 
+
+
+
+const obtenerClasesUsuarios = async (req, res) => {
+    try {
+        const idUsuario = req.params.id;
+
+        const usuarioConClases = await usuarios.findByPk(idUsuario, {
+            include: {
+                model: clases,
+                attributes: ['id_clase', 'nombreClase', 'codigo'],
+                through: { attributes: [] }, // Oculta datos intermedios de la relacion del alumno
+                include: [
+                    {
+                        model: usuarios,
+                        attributes: ['nombre', 'apellido', 'mail'],
+                        through: {
+                            where: { esProfesor: true },
+                            attributes: []
+                        }
+                    }
+                ]
+            }
+        });
+
+        if (!usuarioConClases) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+
+        return res.status(200).json(usuarioConClases.clases);
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error al obtener las clases' });
+    }
+};
+
 const obtenerDatosUsuario = async (req, res) => {
     const id = req.user.id;
     try {
@@ -133,23 +171,27 @@ const obtenerDatosUsuario = async (req, res) => {
     }
 }
 
-    const obtenerPerfilUsuario = async (req, res) => {
+   const obtenerPerfilUsuario = async (req, res) => {
     const id = Number(req.params.id);
+
 
     try {
         const usuario = await usuarios.findByPk(id, {
             attributes: ['id_usuario', 'nombre', 'apellido', 'mail', 'año_division', 'foto_perfil']
         });
 
+
         if (!usuario) {
             return res.status(404).json({ message: ' usuario no encontrado' });
         }
+
 
         return res.status(200).json(usuario);
     } catch (error) {
         return res.status(500).json({ message: 'error al obtener el perfil del usuario' });
     }
 };
+
 
 
 
@@ -225,5 +267,5 @@ const buscarUsuarios = async (req, res) => {
 };
 
 module.exports = {
-    login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario, buscarUsuarios
+    login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario, buscarUsuarios, obtenerClasesUsuarios
 };
