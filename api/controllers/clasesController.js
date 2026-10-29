@@ -35,6 +35,17 @@ const create = async (req, res) => {
         return res.status(500).json({ error: "Error en el servidor", detalles: error.message });
     }
 }
+const buscarimagen=async(req,res)=>{
+    const id_clase=req.params.idclase
+    try{
+        const imagen=await clases.findOne({where:{id_clase}})
+        return res.status(201).json({ message: "imagen encontrada", imagen });
+    }
+    catch(error){
+        return res.status(500).json({ error: "Error en el servidor", detalles: error.message });
+    }
+    
+}
 const unirseClase = async (req, res) =>{
 
 try {
@@ -61,4 +72,4 @@ catch (error) {
 
 }
 
-module.exports = { create, unirseClase };
+module.exports = { create, unirseClase,buscarimagen };

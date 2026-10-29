@@ -15,7 +15,10 @@ const clases = sequelize.define('clases', {
         type: DataTypes.STRING,
         allowNull: false,
         unique:true
-        
+    },
+    imagen:{
+        type:DataTypes.STRING,
+        allowNull: true
     }
 
 }, {

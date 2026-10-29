@@ -35,6 +35,10 @@ const Anuncios = sequelize.define('anuncios', {
         type: DataTypes.TEXT,
         allowNull: false
     },
+    nombre:{
+        type:DataTypes.STRING,
+        allowNull:false
+    }
 
 }, {
     tableName: 'anuncios',
@@ -42,3 +46,4 @@ const Anuncios = sequelize.define('anuncios', {
 });
 
 module.exports = { Anuncios };
+

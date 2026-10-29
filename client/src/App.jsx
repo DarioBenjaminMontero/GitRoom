@@ -11,6 +11,8 @@ import Repositorio from './pages/Repositorio.jsx'
 import NewRepository from './pages/NewRepository.jsx'
 import Perfil from './pages/Perfil.jsx'
 import Chat from './pages/chats.jsx'
+import Obteneranuncios from './pages/clases.jsx'
+import  InfoAnuncio  from './pages/anuncio.jsx'
 import './pages/chats.css'
 import './App.css'
 
@@ -38,6 +40,8 @@ function App() {
         <Route path="/perfil/:id" element={<Perfil />} />
         <Route path='/chats' element={<Chat />} />
         <Route path="/buscar-usuarios" element={<BuscarUsuarios />} />
+        <Route path='/clase' element ={<Obteneranuncios/>}></Route>
+        <Route path='/anuncio' element ={<InfoAnuncio/>}></Route>
       </Routes>
     </>
   )

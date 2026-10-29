@@ -7,7 +7,7 @@ const tiposAnuncio = new Set(['anuncio', 'tarea']);
 
 const create = async (req, res) => {
     const idClase = Number(req.params.idClase);
-    const { tipo, contenido } = req.body;
+    const { tipo, contenido,nombre } = req.body;
 
     if (!Number.isInteger(idClase) || idClase <= 0) {
         return res.status(400).json({ message: 'El id de la clase no es válido' });
@@ -41,7 +41,8 @@ const create = async (req, res) => {
                 id_clase: idClase,
                 tipo,
                 fecha_publicacion: new Date(),
-                contenido: contenido.trim()
+                contenido: contenido.trim(),
+                nombre:nombre
             }, { transaction });
 
             const directorioAnuncio = path.join(
@@ -61,6 +62,29 @@ const create = async (req, res) => {
         return res.status(500).json({ message: 'Error al crear el anuncio', detalles: error.message });
     }
 };
+const obtenerAnuncio=async(req,res)=>{
+    const id_clase=Number(req.params.idclase)?Number(req.params.idclase):null
+    const id_anuncio=Number(req.params.idAnuncio)?Number(req.params.idAnuncio):null
+    if(id_clase!=null){
+    try{
+         const anuncio = await Anuncios.findAll({where:{id_clase}});
+    return res.status(201).json({ message: 'exito al buscar el anunacio', anuncio});
+    }
+    catch(error){
+        return res.status(500).json({ message: 'Error al buscar el anuncio', detalles: error.message });
+    }
+    }
+    else if(id_anuncio!=null){
+         try{
+         const anuncio = await Anuncios.findOne({where:{id_anuncio}});
+    return res.status(201).json({ message: 'exito al buscar el anunacio', anuncio });
+    }
+    catch(error){
+        return res.status(500).json({ message: 'Error al buscar el anuncio', detalles: error.message });
+    }
+    }
+    
+}
 
 const createComment = async (req, res) => {
     const idAnuncio = Number(req.params.idAnuncio);
@@ -91,4 +115,4 @@ const createComment = async (req, res) => {
     }
 };
 
-module.exports = { create, createComment };
+module.exports = { create, createComment,obtenerAnuncio };

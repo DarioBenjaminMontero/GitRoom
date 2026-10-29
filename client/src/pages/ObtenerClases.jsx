@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-
+import {useNavigate} from "react-router-dom";
 
 export default function ClasesList({ refreshTrigger }) {
 
     const token = localStorage.getItem('token')
+    const navigate=useNavigate();
 
     const [clases, setClases] = useState([])
     // Guarda la página visible; empieza en 1 y se actualiza desde los botones.
@@ -25,7 +26,11 @@ export default function ClasesList({ refreshTrigger }) {
             fecthClases();
         }
     }, [token, refreshTrigger]);
-
+    
+    const Clase= async(id_clase)=>{
+        localStorage.setItem('idclase',id_clase)
+        navigate("/clase")
+    }
 
 
     if (!token) return alert("Debes estar logueado para ver tus clases");
@@ -78,6 +83,7 @@ export default function ClasesList({ refreshTrigger }) {
                             padding: "16px",
                             width: "220px"
                         }}
+                        role="button" onClick={()=>Clase(clase.id_clase)}
                     >
                         <h3>{clase.nombreClase}</h3>
                         <p style={{ color: "#666", fontSize: "14px" }}>
