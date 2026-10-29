@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import axios from 'axios';
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import './Repositorio.css';
 
 export default function Repositorio() {
@@ -9,7 +9,9 @@ export default function Repositorio() {
     const [fecha, setFecha] = useState('');
     const [privado, setPrivado] = useState(false);
     const [colaboradores, setColaboradores] = useState([]);
+    const [archivos, setArchivos] = useState([]); // <--- Estado para los archivos
     const { idRepo } = useParams();
+    const navigate = useNavigate();
 
     const traerInformacionRepositorio = useCallback(async () => {
         try {
@@ -34,21 +36,32 @@ export default function Repositorio() {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
-            console.log("Colaboradores recibidos:", respuesta.data);
             setColaboradores(respuesta.data || []);
         } catch (error) {
             console.error("Error al traer colaboradores:", error.response?.data || error.message);
         }
     }, [idRepo]);
 
+    // <--- Nueva función para traer los archivos del repositorio
+    const traerArchivos = useCallback(async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const respuesta = await axios.get(`http://localhost:3000/archivos/repositorio/${idRepo}/traerArchivos`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            setArchivos(respuesta.data || []);
+        } catch (error) {
+            console.error("Error al traer archivos:", error.response?.data || error.message);
+        }
+    }, [idRepo]);
+
     useEffect(() => {
         if (idRepo) {
-            // These async requests update state only after their API responses arrive.
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             traerInformacionRepositorio();
             traerColaboradores();
+            traerArchivos(); // <--- Llamamos a la función al cargar el componente
         }
-    }, [idRepo, traerInformacionRepositorio, traerColaboradores]);
+    }, [idRepo, traerInformacionRepositorio, traerColaboradores, traerArchivos]);
 
     return (
         <div className="repo-page">
@@ -60,25 +73,47 @@ export default function Repositorio() {
                     <span className="badge">{privado ? "Private" : "Public"}</span>
                 </div>
                 <div className="repo-actions">
-                    <input type="text" placeholder="Go to file" />
-                    <button>Add file ▾</button>
-                    <button className="btn-green">&lt;&gt; Code ▾</button>
-                </div>
+    <input type="text" placeholder="Go to file" />
+    <button onClick={() => navigate(`/repositorios/subir/${idRepo}`)}>Add file ▾</button>
+    <button className="btn-green">&lt;&gt; Code ▾</button>
+</div>
             </div>
 
             {/* Main Container */}
             <div className="repo-container">
                 {/* Left Side: Files & Readme */}
                 <div className="repo-main">
+                    
+                    {/* Caja de Archivos del Repositorio */}
                     <div className="box">
                         <div className="box-header purple">
                             <div>
                                 <img src="https://via.placeholder.com/24" alt="User" />
-                                <strong>Persona2</strong> Add files via upload
+                                <strong>Archivos del Repositorio</strong>
                             </div>
-                            <div>67 minutes ago • <strong>2 Commits</strong></div>
+                            <div>{archivos.length} archivo(s)</div>
                         </div>
-                        <div className="box-body gray"></div>
+                        <div className="box-body" style={{ padding: '16px', background: '#fff' }}>
+                            {archivos.length === 0 ? (
+                                <p style={{ color: '#666', fontSize: '14px' }}>Este repositorio todavía no tiene archivos subidos.</p>
+                            ) : (
+                                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                    {archivos.map((archivo) => (
+                                        <li key={archivo.id_archivo} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #eaeaea' }}>
+                                            <span>📄 {archivo.nombre}</span>
+                                            <a 
+                                                href={archivo.urlCompleta} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                style={{ color: '#0969da', textDecoration: 'none', fontWeight: '500' }}
+                                            >
+                                                Ver / Descargar
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
                     </div>
 
                     <div className="box">

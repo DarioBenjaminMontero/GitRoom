@@ -182,19 +182,23 @@ const guardarArchivoRepositorio = async (req, res) => {
     }
 
     try {
-        // Registra juntos los archivos que Multer ya guardó en disco.
+        const idRepo = req.params.id;
+
+        // Guardamos la ruta relativa estructurada, ej: "repos/1/uuid--archivo.js"
         const archivos = await Archivos.bulkCreate(req.files.map((file) => ({
-            ruta: file.filename,
-            id_repo: Number(req.params.id)
+            ruta: `repos/${idRepo}/${file.filename}`, // <-- AQUÍ GUARDAS LA RUTA COMPLETA
+            id_repo: Number(idRepo)
         })))
+
         return res.status(201).json({
             archivos: archivos.map((archivo, index) => ({
                 id_archivo: archivo.id_archivo,
-                nombre: req.files[index].filename.split("--").slice(1).join("--")
+                nombre: req.files[index].filename.split("--").slice(1).join("--"),
+                ruta: archivo.ruta
             }))
         })
     } catch (error) {
-        // Borra los archivos del disco si no se pudieron registrar en la base.
+        // Borra los archivos del disco si falló la base de datos
         await Promise.all(req.files.map((file) =>
             fs.unlink(file.path).catch((cleanupError) => {
                 if (cleanupError.code !== "ENOENT") {
@@ -206,6 +210,8 @@ const guardarArchivoRepositorio = async (req, res) => {
         return res.status(500).json({ message: "No se pudo guardar el archivo" })
     }
 }
+
+
 
 module.exports = {
     crearRepositorio,

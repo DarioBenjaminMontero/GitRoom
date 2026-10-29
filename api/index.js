@@ -27,6 +27,7 @@ const routerUsuario = require('./routes/userRoutes');
 const routerRepositorio = require("./routes/repositoriosRoutes.js")
 const routerClases = require ('./routes/clasesRoutes.js')
 const routerChats = require ('./routes/chatRoutes.js')
+const routerArchivos = require('./routes/archivosRoutes.js')
 
 const app = express();
 const server = http.createServer(app);//🐸aca usamos http para crear el servidor
@@ -46,6 +47,7 @@ app.use('/users', routerUsuario);
 app.use("/repositorios", routerRepositorio)
 app.use('/clases',routerClases)
 app.use('/chats', routerChats)
+app.use('/archivos', routerArchivos)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 //🐸esto nos sirve para saber que usuario esta en un chat, si lo esta o esta desconectado
 io.on('connection', (socket) => {
@@ -71,7 +73,7 @@ sequelize.authenticate()
     console.log(' Conexión a la base de datos PostgreSQL establecida con éxito.');
     
     // Opcional: puedes intentar sincronizar sin detener el servidor si falla
-    sequelize.sync({ force: false }).catch(err => {
+    sequelize.sync({ force: true }).catch(err => {
       console.warn(' Advertencia: Algunas tablas no se pudieron sincronizar:', err.message);
     });
 

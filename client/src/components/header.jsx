@@ -43,6 +43,7 @@ export default function Header({ onClaseCreada }) {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('idclase')
     alert('Sesión cerrada');
     navigate('/login');
   };
@@ -80,11 +81,11 @@ export default function Header({ onClaseCreada }) {
       await obtenerClasesHeader();
       
       if (onClaseCreada) {
-        onClaseCreada(); // 🚀 Dispara la actualización global para que el Home se entere
+        onClaseCreada();
       }
     } catch (error) {
-      console.error("Error al crear la clase:", error);
-      alert("Hubo un error al crear la clase.");
+      console.error("Detalle del error del backend:", error.response?.data); // 👈 Esto te dará más pistas en la consola
+      alert(error.response?.data?.message || "Hubo un error al crear la clase.");
     }
   };
 
