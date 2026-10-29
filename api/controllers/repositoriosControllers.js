@@ -1,4 +1,4 @@
-const { repositorios, UsuariosRepositorios, Archivos } = require("../models/index.js")
+const { repositorios, UsuariosRepositorios, Archivos, usuarios } = require("../models/index.js")
 const fs = require("fs/promises")
 
 const validarRepositorio = async (req, res, next) => {
@@ -23,6 +23,8 @@ const validarRepositorio = async (req, res, next) => {
     }
 }
 
+
+
 const crearRepositorio = async (req, res) => {
     let id_usuario = req.user.id
     let es_privado = req.user.visibilidadRepositorio
@@ -35,19 +37,19 @@ const crearRepositorio = async (req, res) => {
     }
 
 
-const existeRepo = await UsuariosRepositorios.findOne({
-      where: { id_usuario: id_usuario },
-      include: [{
-        model: repositorios,
-        where: { nombre_repo: nombre_repo },
-        required: true
-      }]
+    const existeRepo = await UsuariosRepositorios.findOne({
+        where: { id_usuario: id_usuario },
+        include: [{
+            model: repositorios,
+            where: { nombre_repo: nombre_repo },
+            required: true
+        }]
     });
 
 
-        if(existeRepo){
-return res.status(400).json({message: "ya existe"})
-        }
+    if (existeRepo) {
+        return res.status(400).json({ message: "ya existe" })
+    }
 
 
     const respuesta = await repositorios.create({
@@ -74,25 +76,25 @@ return res.status(400).json({message: "ya existe"})
 
 
 
-const consultarRepositorios = async(req, res) =>{
-const id = req.user.id
-const nombreRepositorio = req.user.nombreRepositorio
-try{
-const respuesta = await UsuariosRepositorios.findOne({
-      where: { id_usuario: id },
-      include: [{
-        model: repositorios,
-        where: { nombre_repo: nombreRepositorio },
-        required: true
-      }]
-    });
-return res.status(200).json({ exists: !!respuesta });
-}
-catch(error){
+const consultarRepositorios = async (req, res) => {
+    const id = req.user.id
+    const nombreRepositorio = req.user.nombreRepositorio
+    try {
+        const respuesta = await UsuariosRepositorios.findOne({
+            where: { id_usuario: id },
+            include: [{
+                model: repositorios,
+                where: { nombre_repo: nombreRepositorio },
+                required: true
+            }]
+        });
+        return res.status(200).json({ exists: !!respuesta });
+    }
+    catch (error) {
 
 
-return res.status(500).json({ error: "Error en el servidor", details: error.message });
-}
+        return res.status(500).json({ error: "Error en el servidor", details: error.message });
+    }
 }
 
 const traerRepos = async (req, res) => {
@@ -109,6 +111,50 @@ const traerRepos = async (req, res) => {
         return res.status(200).json(respuesta)
     } catch (error) {
         return res.status(500).json({ error: "Error en el servidor", details: error.message })
+    }
+}
+
+
+const traerInformacionRepositorios = async (req, res) => {
+    const idRepositorio = req.user.idRepo
+    try {
+        const consulta = await repositorios.findByPk(idRepositorio)
+        const datos = {
+            descripcion: consulta.descripcion,
+            nombre: consulta.nombre_repo,
+            fecha: consulta.fecha_creacion,
+            privado: consulta.es_privado,
+        }
+        res.status(200).json(datos)
+    }
+    catch (error) {
+        res.status(500).json(error)
+    }
+}
+
+
+const traerColaboradores = async (req, res) => {
+    
+    const idRepo = req.user.idRepo; 
+
+    try {
+        const repoConColaboradores = await repositorios.findByPk(idRepo, {
+            include: {
+                model: usuarios,
+                // Opcional: si quieres filtrar solo los que tienen rol de colaborador activo
+                // through: { where: { rol_Colaborador: true } },
+                attributes: ['id_usuario', 'nombre', 'mail', 'apellido', 'foto_perfil'] // Campos que quieres traer del usuario
+            }
+        });
+
+        if (!repoConColaboradores) {
+            return res.status(404).json({ message: "Repositorio no encontrado" });
+        }
+
+        return res.status(200).json(repoConColaboradores.usuarios);
+    }
+    catch (error) {
+        return res.status(500).json({ error: "Error en el servidor", details: error.message });
     }
 }
 
@@ -148,5 +194,7 @@ module.exports = {
     consultarRepositorios,
     traerRepos,
     validarRepositorio,
-    guardarArchivoRepositorio
+    guardarArchivoRepositorio,
+    traerColaboradores,
+    traerInformacionRepositorios
 }
