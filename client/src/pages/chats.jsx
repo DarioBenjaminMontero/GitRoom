@@ -80,7 +80,9 @@ export default function ChatsPage() {
 
   // Manejar la selección de un chat y unirse a la sala de Socket.io
   const seleccionarChat = (chat) => {
+  
     setChatActivo(chat);
+    console.log(chatActivo)
     socket.emit('unirse_a_chat', chat.id_chat);
     
    obtenerMensajes(chat)
@@ -147,19 +149,27 @@ export default function ChatsPage() {
           </button>
         </form>
         {chats.length > 0 ? (
-          chats.map((chat) => (
-            <div 
-              key={chat.id_chat}
-              onClick={() => seleccionarChat(chat)}
-              className={`chat-item ${chatActivo?.id_chat === chat.id_chat ? 'activo' : ''}`}
-            >
-              <strong>Chat #{chat.id_chat}</strong>
-              {!chat.es_privado && <span className="chat-participants"> (Grupo) {chat.nombre}</span>}
-              <p className="chat-participants">
-                {chat.usuarios?.map(u => u.nombre).join(', ')}
-              </p>
-            </div>
-          ))
+          chats.map((chat) => {
+            // Si es chat privado, filtramos al otro usuario 
+            const otroUsuario = chat.usuarios?.find(u => u.id_usuario !== idActual)
+             
+
+            return (
+              <div 
+                key={chat.id_chat}
+                onClick={() => seleccionarChat(chat)}
+                className={`chat-item ${chatActivo?.id_chat === chat.id_chat ? 'activo' : ''}`}
+              >
+                <strong>{chat.es_privado ? (otroUsuario ? otroUsuario.nombre : 'Chat Privado') : "(grupo) " + chat.nombre }</strong>
+                
+                <p className="chat-participants">
+                  {chat.es_privado 
+                    ? (otroUsuario ? otroUsuario.mail : '') 
+                    : chat.usuarios?.map(u => u.nombre).join(', ')}
+                </p>
+              </div>
+            );
+          })
         ) : (
           <p className="no-chats">No tienes chats disponibles.</p>
         )}
@@ -179,8 +189,9 @@ export default function ChatsPage() {
             <div className="chat-header">
               {/* 🍪 En los grupos se muestra el nombre del grupo en vez de "Chat con:" */}
               {chatActivo.es_privado
-                ? <h3>Chat con: {chatActivo.usuarios?.map(u => u.nombre).join(', ')}</h3>
-                : <h3>{chatActivo.nombre}</h3>}
+           
+                ? <h3>Chat privado con: {chatActivo.usuarios?.filter(u =>u.id_usuario!==idActual).map(u => u.nombre).join(' , ')}</h3>
+                : <h3>Chat grupal con: {chatActivo.usuarios?.filter(u =>u.id_usuario!==idActual).map(u => u.nombre).join(' , ')}</h3>}
             </div>
             
             <div className="mensajes-container">
