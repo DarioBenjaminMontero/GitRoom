@@ -5,36 +5,59 @@ import "./repositorioCarpetas.css";
 
 function RepositorioCarpetas() {
   const { id } = useParams();
+  const token = localStorage.getItem("token");
   const [repo, setRepo] = useState(null);
   const [cargando, setCargando] = useState(true);
-  const [carpetaAbierta, setCarpetaAbierta] = useState(false);
+  const [subiendo, setSubiendo] = useState(false);
+  const [mensaje, setMensaje] = useState("");
 
   useEffect(() => {
     const traerRepositorio = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const respuesta = await axios.get("http://localhost:3000/repositorios/traerRepos", {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+        const response = await axios.get("http://localhost:3000/repositorios/traerRepos", {
+          headers: { Authorization: `Bearer ${token}` },
         });
-
-        const encontrado = respuesta.data.find((item) => String(item.id_repo) === id);
-
-        if (!encontrado) {
-          console.log("No se encontró el repositorio.");
-        } else {
-          setRepo(encontrado);
-        }
+        setRepo(response.data.find((item) => String(item.id_repo) === id));
       } catch (error) {
-        console.log(error);
+        console.error("Error al traer el repositorio:", error);
+        setMensaje("No se pudo cargar el repositorio.");
       }
-
       setCargando(false);
     };
 
-    traerRepositorio();
-  }, [id]);
+    if (token) {
+      traerRepositorio();
+    }
+  }, [id, token]);
+
+  const subirArchivo = async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    // FormData mantiene el nombre "archivos" que espera Multer para la subida múltiple.
+    const archivos = form.elements.archivos.files;
+    setSubiendo(true);
+    setMensaje("");
+
+    try {
+      await axios.post(`http://localhost:3000/repositorios/${id}/archivos`, new FormData(form), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMensaje(`${archivos.length} archivo(s) subido(s) correctamente.`);
+      form.reset();
+    } catch (error) {
+      setMensaje(error.response?.data?.message || "No se pudo subir el archivo.");
+    }
+    setSubiendo(false);
+  };
+
+  if (!token) {
+    return (
+      <main className="detalle-repo">
+        <Link to="/repositorios" className="detalle-volver">← Mis repositorios</Link>
+        <p className="detalle-error" role="alert">Iniciá sesión para ver este repositorio.</p>
+      </main>
+    );
+  }
 
   if (cargando) {
     return <main className="detalle-repo"><p>Cargando repositorio...</p></main>;
@@ -43,38 +66,28 @@ function RepositorioCarpetas() {
   if (!repo) {
     return (
       <main className="detalle-repo">
-        <Link to="/repositorios" className="detalle-volver">Volver a repositorios</Link>
-        <p className="detalle-error">No se pudo cargar el repositorio.</p>
+        <Link to="/repositorios" className="detalle-volver">← Mis repositorios</Link>
+        <p className="detalle-error" role="alert">{mensaje || "No se encontró el repositorio."}</p>
       </main>
     );
   }
 
   return (
     <main className="detalle-repo">
-      <Link to="/repositorios" className="detalle-volver">Mis repositorios</Link>
+      <Link to="/repositorios" className="detalle-volver">← Mis repositorios</Link>
       <header className="detalle-cabecera">
-        <div>
-          <p className="detalle-ruta">Repositorio</p>
-          <h1>{repo.nombre_repo}</h1>
-          <p>{repo.descripcion || "Sin descripción"}</p>
-        </div>
-        <span className="detalle-visibilidad">{repo.es_privado ? "Privado" : "Público"}</span>
+        <h1>{repo.nombre_repo}</h1>
+        <span>{repo.es_privado ? "Privado" : "Público"}</span>
       </header>
 
-      <section className="detalle-contenido" aria-label="Contenido del repositorio">
-        <h2>Archivos</h2>
-        <button
-          className="detalle-carpeta"
-          type="button"
-          aria-expanded={carpetaAbierta}
-          onClick={() => setCarpetaAbierta(!carpetaAbierta)}
-        >
-          <span aria-hidden="true">📁</span>
-          <span>Archivos</span>
-          <span className="detalle-carpeta-estado">{carpetaAbierta ? "Abierta" : "Carpeta"}</span>
+      <form className="detalle-subida" onSubmit={subirArchivo}>
+        <h2>Subir archivos</h2>
+        <input type="file" name="archivos" multiple required />
+        <button type="submit" disabled={subiendo}>
+          {subiendo ? "Subiendo..." : "Subir archivos"}
         </button>
-        {carpetaAbierta && <p className="detalle-vacio">Esta carpeta está vacía.</p>}
-      </section>
+        {mensaje && <p role="status">{mensaje}</p>}
+      </form>
     </main>
   );
 }
