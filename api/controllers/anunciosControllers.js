@@ -1,4 +1,4 @@
-const fs = require('fs/promises')
+const fs = require('fs/promises');
 const path = require('path');
 const { Anuncios, clases, clasesUsuarios } = require('../models/index.js');
 const { Comentarios } = require('../models/comentariosModel.js');
