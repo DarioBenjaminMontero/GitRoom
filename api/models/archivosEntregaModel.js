@@ -18,7 +18,11 @@ const ArchivosEntrega = sequelize.define('archivos_entrega', {
   ruta_archivo: {
     type: DataTypes.STRING,
     allowNull: false
-    // Aquí guardas la ruta física devuelta por Multer (ej: 'uploads/entregas/archivo.pdf')
+    // Ruta relativa a la carpeta "uploads" (ej: 'entregas/anuncio-1/alumno-2/uuid--archivo.pdf')
+  },
+  nombre_original: {
+    type: DataTypes.STRING,
+    allowNull: false
   },
   tipo_contenido: {
     type: DataTypes.STRING,

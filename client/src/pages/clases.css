@@ -308,10 +308,89 @@
 
 .entrega-lista {
     margin: 12px 0 0 0;
-    padding-left: 20px;
+    padding: 0;
+    list-style: none;
     font-size: 14px;
     color: #c5c5d2;
     overflow-wrap: anywhere;
+}
+
+.entrega-lista li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 0;
+}
+
+.entrega-actual {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(100, 100, 180, 0.3);
+}
+
+.entrega-estado {
+    margin: 0 0 4px 0;
+    font-size: 13px;
+    color: #9aa0a6;
+}
+
+.entrega-descarga,
+.entrega-quitar {
+    padding: 0;
+    background: none;
+    border: none;
+    font: inherit;
+    cursor: pointer;
+}
+
+.entrega-descarga {
+    color: #8ab4f8;
+    text-align: left;
+    text-decoration: underline;
+    overflow-wrap: anywhere;
+}
+
+.entrega-quitar {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    color: #9aa0a6;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.entrega-quitar:hover {
+    color: #ffffff;
+}
+
+.entrega-aviso {
+    margin: 12px 0 0 0;
+    font-size: 13px;
+    color: #9aa0a6;
+}
+
+.entrega-enviar {
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px 16px;
+    background-color: #1a73e8;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.entrega-enviar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.entrega-error {
+    margin: 12px 0 0 0;
+    font-size: 14px;
+    color: #f28b82;
 }
 
 /* En pantallas angostas, el cuadro de entrega pasa debajo del contenido. */

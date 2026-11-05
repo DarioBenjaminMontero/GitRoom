@@ -93,7 +93,7 @@ ArchivosAnuncio.belongsTo(Anuncios, {foreignKey: 'id_anuncio'})
 usuarios.hasMany(Entregas, { foreignKey: 'id_alumno' });
 Entregas.belongsTo(usuarios, { foreignKey: 'id_alumno' });
 
-Entregas.hasMany(ArchivosEntrega, { foreignKey: 'id_entrega' });
+Entregas.hasMany(ArchivosEntrega, { as: 'archivos', foreignKey: 'id_entrega' });
 ArchivosEntrega.belongsTo(Entregas, { foreignKey: 'id_entrega' });
 
 repositorios.hasMany(Archivos, {foreignKey: 'id_repo'})

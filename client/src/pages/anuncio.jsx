@@ -15,6 +15,71 @@ export default function InfoAnuncio({ refreshTrigger }) {
     const [comentarios, setComentarios] = useState([]);
     const [textoComentario, setTextoComentario] = useState("");
     const [errorComentarios, setErrorComentarios] = useState("");
+    const [miEntrega, setMiEntrega] = useState(null);
+    const [subiendoEntrega, setSubiendoEntrega] = useState(false);
+    const [errorEntrega, setErrorEntrega] = useState("");
+
+    const fetchMiEntrega = async () => {
+        try {
+            const response = await axios.get(`http://localhost:3000/clases/anuncios/${idAnuncio}/entregas/mia`, {
+                headers: { authorization: token }
+            });
+            setMiEntrega(response.data.entrega);
+        } catch (error) {
+            console.error('Error al buscar la entrega', error.response?.data || error.message);
+            setErrorEntrega(error.response?.data?.message || "No se pudo cargar tu entrega.");
+        }
+    };
+
+    const agregarArchivos = (e) => {
+        const nuevos = Array.from(e.target.files);
+        setArchivos((actuales) => [...actuales, ...nuevos]);
+        // Permite volver a elegir el mismo archivo después de quitarlo.
+        e.target.value = "";
+    };
+
+    const quitarArchivo = (indice) => {
+        setArchivos((actuales) => actuales.filter((_, i) => i !== indice));
+    };
+
+    const enviarEntrega = async () => {
+        const datos = new FormData();
+        archivos.forEach((archivo) => datos.append("archivos", archivo));
+
+        setSubiendoEntrega(true);
+        setErrorEntrega("");
+        try {
+            await axios.post(`http://localhost:3000/clases/anuncios/${idAnuncio}/entregas`, datos, {
+                headers: { authorization: token }
+            });
+            setArchivos([]);
+            await fetchMiEntrega();
+        } catch (error) {
+            console.error('Error al enviar la entrega', error.response?.data || error.message);
+            setErrorEntrega(error.response?.data?.message || "No se pudo enviar la entrega.");
+        } finally {
+            setSubiendoEntrega(false);
+        }
+    };
+
+    const descargarArchivo = async (archivo) => {
+        setErrorEntrega("");
+        try {
+            const response = await axios.get(`http://localhost:3000/clases/entregas/archivos/${archivo.id_archivo_entrega}`, {
+                headers: { authorization: token },
+                responseType: "blob"
+            });
+            const url = URL.createObjectURL(response.data);
+            const enlace = document.createElement("a");
+            enlace.href = url;
+            enlace.download = archivo.nombre_original;
+            enlace.click();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error al descargar el archivo', error.message);
+            setErrorEntrega("No se pudo descargar el archivo.");
+        }
+    };
 
     const fetchComentarios = async () => {
         try {
@@ -49,6 +114,7 @@ export default function InfoAnuncio({ refreshTrigger }) {
         if (token && idAnuncio) {
             fetchDetallesAnuncio();
             fetchComentarios();
+            fetchMiEntrega();
         } else {
             console.warn("Falta el token o el idAnuncio en el localStorage");
         }
@@ -138,21 +204,72 @@ export default function InfoAnuncio({ refreshTrigger }) {
                     {!esProfesor && tiposConEntrega.has(anuncio.tipo) && (
                         <aside className="entrega-cuadro">
                             <h3>Tu entrega</h3>
-                            <label className="entrega-selector">
-                                <input
-                                    type="file"
-                                    multiple
-                                    onChange={(e) => setArchivos(Array.from(e.target.files))}
-                                />
-                                + Agregar archivos
-                            </label>
-                            {archivos.length > 0 && (
-                                <ul className="entrega-lista">
-                                    {archivos.map((archivo, index) => (
-                                        <li key={`${archivo.name}-${index}`}>{archivo.name}</li>
-                                    ))}
-                                </ul>
+
+                            {miEntrega && (
+                                <div className="entrega-actual">
+                                    <p className="entrega-estado">
+                                        Entregado el {new Date(miEntrega.fecha_entrega).toLocaleDateString()}
+                                    </p>
+                                    {miEntrega.calificacion !== null && (
+                                        <p className="entrega-estado">Calificación: {miEntrega.calificacion}</p>
+                                    )}
+                                    <ul className="entrega-lista">
+                                        {miEntrega.archivos.map((archivo) => (
+                                            <li key={archivo.id_archivo_entrega}>
+                                                <button
+                                                    type="button"
+                                                    className="entrega-descarga"
+                                                    onClick={() => descargarArchivo(archivo)}
+                                                >
+                                                    {archivo.nombre_original}
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
                             )}
+
+                            {miEntrega?.calificacion == null && (
+                                <>
+                                    <label className="entrega-selector">
+                                        <input type="file" multiple onChange={agregarArchivos} />
+                                        + Agregar archivos
+                                    </label>
+
+                                    {archivos.length > 0 && (
+                                        <ul className="entrega-lista">
+                                            {archivos.map((archivo, index) => (
+                                                <li key={`${archivo.name}-${index}`}>
+                                                    <span>{archivo.name}</span>
+                                                    <button
+                                                        type="button"
+                                                        className="entrega-quitar"
+                                                        aria-label={`Quitar ${archivo.name}`}
+                                                        onClick={() => quitarArchivo(index)}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+
+                                    {miEntrega && archivos.length > 0 && (
+                                        <p className="entrega-aviso">Estos archivos reemplazan a tu entrega anterior.</p>
+                                    )}
+
+                                    <button
+                                        type="button"
+                                        className="entrega-enviar"
+                                        disabled={archivos.length === 0 || subiendoEntrega}
+                                        onClick={enviarEntrega}
+                                    >
+                                        {subiendoEntrega ? "Subiendo..." : miEntrega ? "Volver a entregar" : "Entregar"}
+                                    </button>
+                                </>
+                            )}
+
+                            {errorEntrega && <p className="entrega-error" role="alert">{errorEntrega}</p>}
                         </aside>
                     )}
                 </>
