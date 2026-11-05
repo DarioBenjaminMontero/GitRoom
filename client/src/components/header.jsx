@@ -1,4 +1,4 @@
-import { useState, useEffect  } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import GitRoomLogo from '../assets/GitRoom_Logo.png'
@@ -18,7 +18,13 @@ export default function Header({ onClaseCreada }) {
   const [user, setUser] = useState(() => {
     return JSON.parse(localStorage.getItem('user'));
   });
+  const id_clase = localStorage.getItem('idclase');
 
+  const Clase = async (id_clase) => {
+    localStorage.setItem('idclase', id_clase)
+    setMenuAbierto(false);
+    navigate("/clase")
+  }
   useEffect(() => {
     const actualizarUsuario = () => {
       setUser(JSON.parse(localStorage.getItem('user')));
@@ -88,7 +94,7 @@ export default function Header({ onClaseCreada }) {
       setModalUnirseAbierto(false);
       setCodigoClase('');
       await obtenerClasesHeader();
-      
+
       if (onClaseCreada) {
         onClaseCreada(); // 🚀 Dispara la actualización global
       }
@@ -108,7 +114,7 @@ export default function Header({ onClaseCreada }) {
       setModalCrearAbierto(false);
       setNombreClase('');
       await obtenerClasesHeader();
-      
+
       if (onClaseCreada) {
         onClaseCreada();
       }
@@ -164,7 +170,7 @@ export default function Header({ onClaseCreada }) {
               {clases.map((clase, index) => (
                 <button
                   key={clase.id_clase || index}
-                  onClick={() => setMenuAbierto(false)}
+                  onClick={() => Clase(clase.id_clase)}
                   style={{
                     textAlign: "left",
                     backgroundColor: "#2e335a",
@@ -225,9 +231,9 @@ export default function Header({ onClaseCreada }) {
         <button id="repositorios-boton" onClick={() => navigate("/repositorios")}>Repositorios</button>
         <button id="sesion" onClick={logout}>Cerrar Sesión</button>
         <button id="newRepo" onClick={() => navigate("newRepository")}>repo</button>
-     {user?.admin && (
-        <button id="crud" onClick={() => navigate("/crud")}>crud</button>
-    )}
+        {user?.admin && (
+          <button id="crud" onClick={() => navigate("/crud")}>crud</button>
+        )}
         <button id="chats" onClick={() => navigate("/chats")}>chats</button>
         <button onClick={() => setModalUnirseAbierto(true)}>Unirse A una clase</button>
         <button onClick={() => setModalCrearAbierto(true)}>Crear una clase</button>
