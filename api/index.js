@@ -27,6 +27,7 @@ const routerUsuario = require('./routes/userRoutes');
 const routerRepositorio = require("./routes/repositoriosRoutes.js")
 const routerClases = require ('./routes/clasesRoutes.js')
 const routerChats = require ('./routes/chatRoutes.js')
+const routerCrud =require('./routes/crudRoutes.js')
 const routerArchivos = require('./routes/archivosRoutes.js')
 
 const app = express();
@@ -47,7 +48,6 @@ app.use('/users', routerUsuario);
 app.use("/repositorios", routerRepositorio)
 app.use('/clases',routerClases)
 app.use('/chats', routerChats)
-app.use('/archivos', routerArchivos)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 //🐸esto nos sirve para saber que usuario esta en un chat, si lo esta o esta desconectado
 io.on('connection', (socket) => {

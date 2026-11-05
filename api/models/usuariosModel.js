@@ -34,6 +34,12 @@ const usuarios = sequelize.define('usuarios', {
 
         type: DataTypes.STRING(150),
         allowNull: true
+    },
+    admin: {
+
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue : false,
     }
 
 }, {

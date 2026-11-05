@@ -100,6 +100,7 @@ export default function Header({ onClaseCreada }) {
       </section>
     );
   }
+  console.log(user)
 
   return (
     <section id="header">
@@ -153,6 +154,9 @@ export default function Header({ onClaseCreada }) {
         <button id="repositorios-boton" onClick={() => navigate("/repositorios")}>Repositorios</button>
         <button id="sesion" onClick={logout}>Cerrar Sesión</button>
         <button id="newRepo" onClick={() => navigate("newRepository")}>repo</button>
+     {user?.admin && (
+        <button id="crud" onClick={() => navigate("/crud")}>crud</button>
+    )}
         <button id="chats" onClick={() => navigate("/chats")}>chats</button>
         <button onClick={() => setModalUnirseAbierto(true)}>Unirse A una clase</button>
         <button onClick={() => setModalCrearAbierto(true)}>Crear una clase</button>

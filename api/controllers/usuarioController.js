@@ -5,6 +5,7 @@ const { clases } = require("../models/clasesModel.js")
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { isAdmin } = require("../middlewares/esAdmin.js");
 const JWT_SECRET = 'Ranas_Todas_Flacas_Musculosas';
 const Registro = async (req, res) => {
 
@@ -73,7 +74,7 @@ const login = async (req, res) => {
         res.status(200).json({
             message: "Login exitoso",
             token,
-            user: { id: user.id_usuario, username: user.nombre }
+            user: { id: user.id_usuario, username: user.nombre, admin:user.admin }
         });
     } catch (error) {
         res.status(500).json({ error: "Error en el servidor", details: error.message });
