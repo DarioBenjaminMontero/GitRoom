@@ -1,8 +1,9 @@
 const fs = require('fs/promises');
 const path = require('path');
-const { Anuncios, clases, clasesUsuarios } = require('../models/index.js');
+const { Anuncios, clases, clasesUsuarios, Entregas } = require('../models/index.js');
 const { Comentarios } = require('../models/comentariosModel.js');
 const { sequelize } = require('../config/db.js');
+const { Op } = require('sequelize');
 const tiposAnuncio = new Set(['anuncio', 'tarea']);
 
 const create = async (req, res) => {
@@ -86,6 +87,54 @@ const obtenerAnuncio=async(req,res)=>{
     
 }
 
+const obtenerTareasPendientes = async (req, res) => {
+    try {
+        const membresias = await clasesUsuarios.findAll({
+            attributes: ['id_clase'],
+            where: {
+                id_usuario: req.user.id,
+                esProfesor: false
+            }
+        });
+        const idsClases = membresias.map((membresia) => membresia.id_clase);
+
+        if (idsClases.length === 0) {
+            return res.status(200).json({ tareas: [] });
+        }
+
+        const entregas = await Entregas.findAll({
+            attributes: ['id_anuncio'],
+            where: { id_alumno: req.user.id }
+        });
+        const idsAnunciosEntregados = entregas.map((entrega) => entrega.id_anuncio);
+        const where = {
+            tipo: 'tarea',
+            id_clase: { [Op.in]: idsClases }
+        };
+
+        if (idsAnunciosEntregados.length > 0) {
+            where.id_anuncio = { [Op.notIn]: idsAnunciosEntregados };
+        }
+
+        const tareas = await Anuncios.findAll({
+            where,
+            order: [['fecha_publicacion', 'DESC']]
+        });
+
+        return res.status(200).json({
+            tareas: tareas.map((tarea) => ({
+                ...tarea.toJSON(),
+                estado_tarea: 'sin_entregar'
+            }))
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error al buscar las tareas sin entregar',
+            detalles: error.message
+        });
+    }
+};
+
 const createComment = async (req, res) => {
     const idAnuncio = Number(req.params.idAnuncio);
     const { texto } = req.body;
@@ -115,4 +164,4 @@ const createComment = async (req, res) => {
     }
 };
 
-module.exports = { create, createComment,obtenerAnuncio };
+module.exports = { create, createComment, obtenerAnuncio, obtenerTareasPendientes };

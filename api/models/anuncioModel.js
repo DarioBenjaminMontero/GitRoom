@@ -46,4 +46,3 @@ const Anuncios = sequelize.define('anuncios', {
 });
 
 module.exports = { Anuncios };
-
