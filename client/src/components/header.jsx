@@ -127,6 +127,7 @@ export default function Header({ onClaseCreada }) {
         <button onClick={() => { navigate("/repositorios"); setMenuAbierto(false); }}>Repositorios</button>
         <button onClick={() => { navigate("newRepository"); setMenuAbierto(false); }}>Nuevo repositorio</button>
         <button onClick={() => { navigate("perfil"); setMenuAbierto(false); }}>Perfil</button>
+        <button onClick={() => { navigate("/calendario"); setMenuAbierto(false); }}>Calendario</button>
         <button onClick={() => { setModalUnirseAbierto(true); setMenuAbierto(false); }}>Unirse a una clase</button>
         <button onClick={() => { navigate("/buscar-usuarios"); setMenuAbierto(false); }}>Buscar usuarios</button>
         <hr style={{ margin: "12px 0", borderColor: "#444" }} />
