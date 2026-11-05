@@ -1,0 +1,161 @@
+.calendario-pagina {
+  flex: 1;
+  padding: 48px 24px;
+  color: #f3f1ff;
+}
+
+.calendario-contenedor {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px;
+  border: 1px solid rgba(192, 132, 252, 0.25);
+  border-radius: 20px;
+  background: rgba(19, 17, 48, 0.88);
+}
+
+.calendario-encabezado,
+.calendario-controles {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.calendario-encabezado {
+  text-align: left;
+}
+
+.calendario-etiqueta {
+  margin: 0 0 6px;
+  color: #c4b5fd;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.calendario-encabezado h1 {
+  margin: 0;
+  color: white;
+  font-size: 32px;
+}
+
+.calendario-controles button,
+.calendario-modal button {
+  padding: 8px 14px;
+  border: 1px solid rgba(192, 132, 252, 0.4);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+  cursor: pointer;
+}
+
+.calendario-mes {
+  margin: 32px 0 16px;
+  color: white;
+  text-align: left;
+  text-transform: capitalize;
+}
+
+.calendario-cuadricula {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-top: 1px solid rgba(196, 181, 253, 0.2);
+  border-left: 1px solid rgba(196, 181, 253, 0.2);
+}
+
+.calendario-dia-semana,
+.calendario-dia {
+  min-width: 0;
+  min-height: 72px;
+  padding: 12px;
+  border: 0;
+  border-right: 1px solid rgba(196, 181, 253, 0.2);
+  border-bottom: 1px solid rgba(196, 181, 253, 0.2);
+  text-align: left;
+}
+
+.calendario-dia-semana {
+  min-height: 0;
+  color: #c4b5fd;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.calendario-dia {
+  background: transparent;
+  color: #f3f1ff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.calendario-dia:hover {
+  background: rgba(192, 132, 252, 0.12);
+}
+
+.calendario-dia.fuera-de-mes {
+  color: #8b879c;
+}
+
+.calendario-dia.es-hoy {
+  color: #e9d5ff;
+  font-weight: 700;
+  outline: 2px solid #a855f7;
+  outline-offset: -2px;
+}
+
+.calendario-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(8, 6, 20, 0.72);
+}
+
+.calendario-modal {
+  position: relative;
+  width: min(100%, 440px);
+  padding: 32px;
+  border: 1px solid rgba(192, 132, 252, 0.35);
+  border-radius: 18px;
+  background: #17142f;
+  color: #f3f1ff;
+  text-align: left;
+}
+
+.calendario-modal h2 {
+  margin: 12px 0 20px;
+  color: white;
+  font-size: 22px;
+  text-transform: capitalize;
+}
+
+.calendario-modal .calendario-modal-cerrar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 10px;
+  font-size: 22px;
+}
+
+.calendario-modal .calendario-sin-informacion {
+  margin: 0;
+  color: #c4bfd8;
+}
+
+@media (max-width: 600px) {
+  .calendario-pagina {
+    padding: 24px 12px;
+  }
+
+  .calendario-contenedor {
+    padding: 20px 12px;
+  }
+
+  .calendario-dia-semana,
+  .calendario-dia {
+    min-height: 52px;
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+}

@@ -15,7 +15,26 @@ export default function Header({ onClaseCreada }) {
   const [tareasPendientes, setTareasPendientes] = useState([]);
 
   const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user'));
+  const [user, setUser] = useState(() => {
+    return JSON.parse(localStorage.getItem('user'));
+  });
+
+  useEffect(() => {
+    const actualizarUsuario = () => {
+      setUser(JSON.parse(localStorage.getItem('user')));
+    };
+
+    window.addEventListener('usuarioActualizado', actualizarUsuario);
+
+    return () => {
+      window.removeEventListener('usuarioActualizado', actualizarUsuario);
+    };
+  }, []);
+  useEffect(() => {
+    if (token) {
+      obtenerClasesHeader();
+    }
+  }, [token]);
 
   const obtenerClasesHeader = async () => {
     try {
@@ -53,6 +72,7 @@ export default function Header({ onClaseCreada }) {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('idclase')
     alert('Sesión cerrada');
     navigate('/login');
   };
@@ -90,11 +110,11 @@ export default function Header({ onClaseCreada }) {
       await obtenerClasesHeader();
       
       if (onClaseCreada) {
-        onClaseCreada(); // 🚀 Dispara la actualización global para que el Home se entere
+        onClaseCreada();
       }
     } catch (error) {
-      console.error("Error al crear la clase:", error);
-      alert("Hubo un error al crear la clase.");
+      console.error("Detalle del error del backend:", error.response?.data); // 👈 Esto te dará más pistas en la consola
+      alert(error.response?.data?.message || "Hubo un error al crear la clase.");
     }
   };
 
@@ -109,6 +129,7 @@ export default function Header({ onClaseCreada }) {
       </section>
     );
   }
+  console.log(user)
 
   return (
     <section id="header">
@@ -131,6 +152,7 @@ export default function Header({ onClaseCreada }) {
         <button onClick={() => { navigate("/repositorios"); setMenuAbierto(false); }}>Repositorios</button>
         <button onClick={() => { navigate("newRepository"); setMenuAbierto(false); }}>Nuevo repositorio</button>
         <button onClick={() => { navigate("perfil"); setMenuAbierto(false); }}>Perfil</button>
+        <button onClick={() => { navigate("/calendario"); setMenuAbierto(false); }}>Calendario</button>
         <button onClick={() => { setModalUnirseAbierto(true); setMenuAbierto(false); }}>Unirse a una clase</button>
         <button onClick={() => { navigate("/buscar-usuarios"); setMenuAbierto(false); }}>Buscar usuarios</button>
         <hr style={{ margin: "12px 0", borderColor: "#444" }} />
@@ -197,12 +219,15 @@ export default function Header({ onClaseCreada }) {
       </aside>
 
       <img src={GitRoomLogo} width="140" height="100" alt="" onClick={() => navigate("/")} />
-      <h2>Bienvenido {user?.username}</h2>
+      <h2>Bienvenido {user?.username} {user?.apellido}</h2>
 
       <div className='header-buttons'>
         <button id="repositorios-boton" onClick={() => navigate("/repositorios")}>Repositorios</button>
         <button id="sesion" onClick={logout}>Cerrar Sesión</button>
         <button id="newRepo" onClick={() => navigate("newRepository")}>repo</button>
+     {user?.admin && (
+        <button id="crud" onClick={() => navigate("/crud")}>crud</button>
+    )}
         <button id="chats" onClick={() => navigate("/chats")}>chats</button>
         <button onClick={() => setModalUnirseAbierto(true)}>Unirse A una clase</button>
         <button onClick={() => setModalCrearAbierto(true)}>Crear una clase</button>

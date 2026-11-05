@@ -81,6 +81,9 @@ Anuncios.belongsTo(clases, { foreignKey: 'id_clase' });
 Anuncios.hasMany(Comentarios, { foreignKey : 'id_anuncio'})
 Comentarios.belongsTo(Anuncios, {foreignKey : 'id_anuncio' })
 
+usuarios.hasMany(Comentarios, { foreignKey: 'id_usuario' })
+Comentarios.belongsTo(usuarios, { as: 'autor', foreignKey: 'id_usuario' })
+
 Anuncios.hasMany(Entregas, { foreignKey: 'id_anuncio' });
 Entregas.belongsTo(Anuncios, { foreignKey: 'id_anuncio' });
 
@@ -90,7 +93,7 @@ ArchivosAnuncio.belongsTo(Anuncios, {foreignKey: 'id_anuncio'})
 usuarios.hasMany(Entregas, { foreignKey: 'id_alumno' });
 Entregas.belongsTo(usuarios, { foreignKey: 'id_alumno' });
 
-Entregas.hasMany(ArchivosEntrega, { foreignKey: 'id_entrega' });
+Entregas.hasMany(ArchivosEntrega, { as: 'archivos', foreignKey: 'id_entrega' });
 ArchivosEntrega.belongsTo(Entregas, { foreignKey: 'id_entrega' });
 
 repositorios.hasMany(Archivos, {foreignKey: 'id_repo'})
@@ -119,5 +122,6 @@ module.exports = {
     versionesArchivos,
     Commits,
     Entregas,       
-    ArchivosEntrega 
+    ArchivosEntrega,
+    ArchivosAnuncio 
 };

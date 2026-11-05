@@ -16,9 +16,22 @@ const Comentarios = sequelize.define('Comentarios', {
             key: 'id_anuncio'
         }
     },
+    id_usuario: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'usuarios',
+            key: 'id_usuario'
+        }
+    },
     texto: {
-        type: DataTypes.STRING,
-        
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
+    fecha_comentario: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW
     }
 }, {
     tableName: "comentarios",

@@ -1,10 +1,10 @@
 const fs = require('fs/promises');
 const path = require('path');
-const { Anuncios, clases, clasesUsuarios, Entregas } = require('../models/index.js');
+const { Anuncios, clases, clasesUsuarios, usuarios,ArchivosAnuncio ,Entregas} = require('../models/index.js');
 const { Comentarios } = require('../models/comentariosModel.js');
 const { sequelize } = require('../config/db.js');
 const { Op } = require('sequelize');
-const tiposAnuncio = new Set(['anuncio', 'tarea']);
+const tiposAnuncio = new Set(['anuncio', 'tarea', 'prueba', 'cuestonario', 'foro']);
 
 const create = async (req, res) => {
     const idClase = Number(req.params.idClase);
@@ -54,6 +54,15 @@ const create = async (req, res) => {
                 `anuncio-${nuevoAnuncio.id_anuncio}`
             );
             await fs.mkdir(directorioAnuncio, { recursive: true });
+            if (req.file) {
+                const rutaDestinoFinal = path.join(directorioAnuncio, req.file.originalname);
+                await fs.rename(req.file.path, rutaDestinoFinal);
+                await ArchivosAnuncio.create({
+                    id_anuncio: nuevoAnuncio.id_anuncio,
+                    tipo: nuevoAnuncio.tipo, 
+                    url_archivo: `/uploads/anuncios/anuncio-${nuevoAnuncio.id_anuncio}/${req.file.originalname}`
+                }, { transaction });
+            }
 
             return nuevoAnuncio;
         });
@@ -69,7 +78,10 @@ const obtenerAnuncio=async(req,res)=>{
     if(id_clase!=null){
     try{
          const anuncio = await Anuncios.findAll({where:{id_clase}});
-    return res.status(201).json({ message: 'exito al buscar el anunacio', anuncio});
+         const profesor = await clasesUsuarios.findOne({
+             where: { id_clase, id_usuario: req.user.id, esProfesor: true }
+         });
+    return res.status(201).json({ message: 'exito al buscar el anunacio', anuncio, esProfesor: Boolean(profesor) });
     }
     catch(error){
         return res.status(500).json({ message: 'Error al buscar el anuncio', detalles: error.message });
@@ -78,7 +90,10 @@ const obtenerAnuncio=async(req,res)=>{
     else if(id_anuncio!=null){
          try{
          const anuncio = await Anuncios.findOne({where:{id_anuncio}});
-    return res.status(201).json({ message: 'exito al buscar el anunacio', anuncio });
+         const profesor = anuncio && await clasesUsuarios.findOne({
+             where: { id_clase: anuncio.id_clase, id_usuario: req.user.id, esProfesor: true }
+         });
+    return res.status(201).json({ message: 'exito al buscar el anunacio', anuncio, esProfesor: Boolean(profesor) });
     }
     catch(error){
         return res.status(500).json({ message: 'Error al buscar el anuncio', detalles: error.message });
@@ -133,6 +148,10 @@ const obtenerTareasPendientes = async (req, res) => {
             detalles: error.message
         });
     }
+}
+const perteneceALaClase = async (id_clase, id_usuario) => {
+    const miembro = await clasesUsuarios.findOne({ where: { id_clase, id_usuario } });
+    return Boolean(miembro);
 };
 
 const createComment = async (req, res) => {
@@ -153,8 +172,13 @@ const createComment = async (req, res) => {
             return res.status(404).json({ message: 'No se encontró el anuncio' });
         }
 
+        if (!await perteneceALaClase(anuncio.id_clase, req.user.id)) {
+            return res.status(403).json({ message: 'Solo los miembros de la clase pueden comentar' });
+        }
+
         const comentario = await Comentarios.create({
             id_anuncio: idAnuncio,
+            id_usuario: req.user.id,
             texto: texto.trim()
         });
 
@@ -164,4 +188,33 @@ const createComment = async (req, res) => {
     }
 };
 
-module.exports = { create, createComment, obtenerAnuncio, obtenerTareasPendientes };
+const obtenerComentarios = async (req, res) => {
+    const idAnuncio = Number(req.params.idAnuncio);
+
+    if (!Number.isInteger(idAnuncio) || idAnuncio <= 0) {
+        return res.status(400).json({ message: 'El id del anuncio no es válido' });
+    }
+
+    try {
+        const anuncio = await Anuncios.findByPk(idAnuncio);
+        if (!anuncio) {
+            return res.status(404).json({ message: 'No se encontró el anuncio' });
+        }
+
+        if (!await perteneceALaClase(anuncio.id_clase, req.user.id)) {
+            return res.status(403).json({ message: 'Solo los miembros de la clase pueden ver los comentarios' });
+        }
+
+        const comentarios = await Comentarios.findAll({
+            where: { id_anuncio: idAnuncio },
+            include: { model: usuarios, as: 'autor', attributes: ['nombre', 'apellido'] },
+            order: [['id_comentario', 'ASC']]
+        });
+
+        return res.status(200).json({ comentarios });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error al obtener los comentarios', detalles: error.message });
+    }
+};
+
+module.exports = { create, createComment, obtenerAnuncio, obtenerComentarios ,obtenerTareasPendientes};

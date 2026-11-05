@@ -8,7 +8,7 @@ const ArchivosAnuncio = sequelize.define('archivosAnuncio', {
         primaryKey : true
     },
 
-    id_Anuncio:{
+    id_anuncio:{
         type: DataTypes.INTEGER,
         allowNull: false,
         references :{

@@ -14,6 +14,12 @@ const [imagen, setImagen] = useState('');
 const esMiPerfil = !id || String(id) === String(usuarioGuardado?.id); //
 const [archivo, setArchivo] = useState(null);
     const [mensaje, setMensaje] = useState('');
+    const navigate = useNavigate();
+    // Controla si se muestra el formulario de confirmación.
+    const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+    // Guarda la contraseña que el usuario escribe para confirmar la eliminación.
+    const [contraseñaEliminacion, setContraseñaEliminacion] = useState('');
+    
 
     const handleFileChange = (e) => {
         setArchivo(e.target.files[0]);
@@ -49,6 +55,48 @@ const [archivo, setArchivo] = useState(null);
             setMensaje(error.response?.data?.message || 'Hubo un error al subir la imagen.');
         }
     };
+
+        const borrarCuenta = async (event) => {
+            // Evita que el formulario recargue la página al enviarse.
+            event.preventDefault();
+
+            // No permite ejecutar la eliminación si falta la contraseña.
+            if (!contraseñaEliminacion) {
+                alert("Ingresá tu contraseña para confirmar.");
+                return;
+            }
+
+            try {
+                // axios.delete debe enviar datos con la propiedad data en el tercer parametro.
+                await axios.delete('http://localhost:3000/users/borrarCuenta', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
+                    data: {
+                        contraseña: contraseñaEliminacion
+                    }
+                });
+
+                // La cuenta fue eliminada, por eso se borra toda la sesión guardada.
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                localStorage.removeItem('tokenPerfil');
+                localStorage.removeItem('idclase');
+                // Informa al Header que cambió el usuario guardado.
+                window.dispatchEvent(new Event("usuarioActualizado"));
+
+                alert("Cuenta eliminada con éxito");
+                navigate("/login");
+            } catch (error) {
+                alert(error.response?.data?.message || "No se pudo eliminar la cuenta.");
+            }
+        };
+
+        const cerrarConfirmacion = () => {
+            // Oculta el modal y elimina la contraseña escrita al cancelarlo.
+            setMostrarConfirmacion(false);
+            setContraseñaEliminacion('');
+        };
         const ConseguirDatosUsuario = async () => {
             try {
                 const url = id
@@ -157,7 +205,19 @@ const [archivo, setArchivo] = useState(null);
     )}
     <h3>{nombre}</h3>
     <h4>{descripcion}</h4>
-    {esMiPerfil && <button>Editar usuario</button>}
+    {esMiPerfil && (
+        <>
+            <button onClick={() => navigate("/modificarPerfil")}>Editar usuario</button>
+            {/* Cambiar true muestra el modal de confirmación. */}
+            <button
+                type="button"
+                className="boton-eliminar-cuenta"
+                onClick={() => setMostrarConfirmacion(true)}
+            >
+                Borrar cuenta
+            </button>
+        </>
+    )}
 </div>
 
                     <div id="reposRecientes">
@@ -192,6 +252,37 @@ const [archivo, setArchivo] = useState(null);
                         )}
                     </div>
                 </div>
+
+                {mostrarConfirmacion && (
+                    <div className="modal-eliminar-cuenta">
+                        {/* Al enviar el formulario se ejecuta borrarCuenta. */}
+                        <form
+                            className="confirmacion-eliminar-cuenta"
+                            onSubmit={borrarCuenta}
+                        >
+                            <h3>Confirmar eliminación</h3>
+                            <p>Esta acción eliminará definitivamente tu cuenta.</p>
+
+                            {/* El valor escrito actualiza contraseñaEliminacion. */}
+                            <input
+                                type="password"
+                                value={contraseñaEliminacion}
+                                onChange={(event) => setContraseñaEliminacion(event.target.value)}
+                                placeholder="Ingresá tu contraseña"
+                                required
+                            />
+
+                            <div>
+                                <button type="submit" className="boton-confirmar-eliminacion">
+                                    Eliminar cuenta
+                                </button>
+                                <button type="button" onClick={cerrarConfirmacion}>
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                )}
             </>
         );
     }

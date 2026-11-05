@@ -65,6 +65,52 @@
     background-color: #6d28d9;
 }
 
+.boton-eliminar-cuenta {
+    margin-top: 10px;
+    background-color: #dc2626 !important;
+}
+
+.boton-eliminar-cuenta:hover {
+    background-color: #b91c1c !important;
+}
+
+.modal-eliminar-cuenta {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.65);
+}
+
+.confirmacion-eliminar-cuenta {
+    width: min(400px, 90%);
+    box-sizing: border-box;
+    padding: 24px;
+    border-radius: 12px;
+    background-color: #1e293b;
+    text-align: center;
+}
+
+.confirmacion-eliminar-cuenta input {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 16px 0;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.confirmacion-eliminar-cuenta div {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.boton-confirmar-eliminacion {
+    background-color: #dc2626;
+}
+
 /* 2. SECCIÓN DE REPOSITORIOS (Centro) */
 #reposRecientes {
     flex: 2.5; /* Mucho más ancho para que las tarjetas de repositorios respiren */

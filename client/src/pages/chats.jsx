@@ -38,7 +38,7 @@ export default function ChatsPage() {
     };
     
     obtenerChats();
-  }, [token]);
+  }, [token, chats]);
   useEffect(() => {
     socket.on('recibir_mensaje', (mensajeNuevo) => {
       // Añadimos el mensaje nuevo respetando los mensajes que ya estaban en pantalla

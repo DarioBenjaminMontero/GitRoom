@@ -9,10 +9,15 @@ import Repositorios from './pages/repositorios.jsx'
 import RepositorioCarpetas from './pages/repositorioCarpetas.jsx'
 import Repositorio from './pages/Repositorio.jsx'
 import NewRepository from './pages/NewRepository.jsx'
+import ModificarPerfil from './pages/modificarPerfil.jsx'
+import Crud from './pages/crud.jsx'
 import Perfil from './pages/Perfil.jsx'
+import Calendario from './pages/Calendario.jsx'
 import Chat from './pages/chats.jsx'
 import Obteneranuncios from './pages/clases.jsx'
-import  InfoAnuncio  from './pages/anuncio.jsx'
+import InfoAnuncio from './pages/anuncio.jsx'
+import OlvideContrasena from './pages/olvideContrasena.jsx'
+import RestablecerContrasena from './pages/restablecerContrasena.jsx'
 import './pages/chats.css'
 import './App.css'
 
@@ -20,7 +25,7 @@ function App() {
   const [actualizarClases, setActualizarClases] = useState(0);
 
   const dispararActualizacion = () => {
-    setActualizarClases(prev => prev + 1); 
+    setActualizarClases(prev => prev + 1);
   };
 
   return (
@@ -33,15 +38,20 @@ function App() {
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
         <Route path='/repositorios' element={<Repositorios />} />
-        <Route path='/repositorios/subir/:id' element={<RepositorioCarpetas/>}></Route>
-        <Route path='/repositorios/:idRepo' element={<Repositorio/>}></Route>
+        <Route path='/repositorios/subir/:id' element={<RepositorioCarpetas />}></Route>
+        <Route path='/repositorios/:idRepo' element={<Repositorio />}></Route>
         <Route path='/newRepository' element={<NewRepository />} />
         <Route path='/perfil' element={<Perfil />} />
         <Route path="/perfil/:id" element={<Perfil />} />
+        <Route path='/modificarPerfil' element={<ModificarPerfil />} />
+        <Route path='/calendario' element={<Calendario />} />
         <Route path='/chats' element={<Chat />} />
         <Route path="/buscar-usuarios" element={<BuscarUsuarios />} />
-        <Route path='/clase' element ={<Obteneranuncios/>}></Route>
-        <Route path='/anuncio' element ={<InfoAnuncio/>}></Route>
+        <Route path='/clase' element={<Obteneranuncios />}></Route>
+        <Route path='/anuncio' element={<InfoAnuncio />}></Route>
+        <Route path='/crud' element={<Crud />}></Route>
+        <Route path='/olvide-contrasena' element={<OlvideContrasena />} />
+        <Route path='/restablecer-contrasena/:token' element={<RestablecerContrasena />} />
       </Routes>
     </>
   )
