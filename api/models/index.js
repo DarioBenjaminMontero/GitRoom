@@ -122,5 +122,6 @@ module.exports = {
     versionesArchivos,
     Commits,
     Entregas,       
-    ArchivosEntrega 
+    ArchivosEntrega,
+    ArchivosAnuncio 
 };

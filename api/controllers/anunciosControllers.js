@@ -1,6 +1,6 @@
 const fs = require('fs/promises');
 const path = require('path');
-const { Anuncios, clases, clasesUsuarios, usuarios } = require('../models/index.js');
+const { Anuncios, clases, clasesUsuarios, usuarios,ArchivosAnuncio } = require('../models/index.js');
 const { Comentarios } = require('../models/comentariosModel.js');
 const { sequelize } = require('../config/db.js');
 const tiposAnuncio = new Set(['anuncio', 'tarea', 'prueba', 'cuestonario', 'foro']);
@@ -53,6 +53,15 @@ const create = async (req, res) => {
                 `anuncio-${nuevoAnuncio.id_anuncio}`
             );
             await fs.mkdir(directorioAnuncio, { recursive: true });
+            if (req.file) {
+                const rutaDestinoFinal = path.join(directorioAnuncio, req.file.originalname);
+                await fs.rename(req.file.path, rutaDestinoFinal);
+                await ArchivosAnuncio.create({
+                    id_anuncio: nuevoAnuncio.id_anuncio,
+                    tipo: nuevoAnuncio.tipo, 
+                    url_archivo: `/uploads/anuncios/anuncio-${nuevoAnuncio.id_anuncio}/${req.file.originalname}`
+                }, { transaction });
+            }
 
             return nuevoAnuncio;
         });

@@ -9,7 +9,7 @@ export default function Obteneranuncios({ refreshTrigger }) {
     const [anucios, setanuncio] = useState([]);
     const [imagen, setimagen] = useState("");
     const [esProfesor, setEsProfesor] = useState(false);
-
+    const [archivos,setArchivo]=useState(null)
     // Estados para el modal de Crear Anuncio
     const [modalCrearAbierto, setModalCrearAbierto] = useState(false);
     const [nombre,setnombre]=useState("")
@@ -63,29 +63,33 @@ export default function Obteneranuncios({ refreshTrigger }) {
 
     const handleCrearAnuncio = async (e) => {
         if (e && e.preventDefault) e.preventDefault();
-        try {
-            // Ajusta la ruta de la API según cómo la tengas en tu backend para crear anuncios
-            await axios.post(`http://localhost:3000/clases/${idClase}/anuncios`, { 
-                contenido: contenido,
-                tipo: tipo,
-                nombre:nombre 
-            }, {
-                headers: { authorization: token }
-            });
-
-            alert("Anuncio creado con éxito");
-            setModalCrearAbierto(false);
-            setContenido('');
-            setTipo('anuncio');
-            
-            // Recargamos la lista de anuncios para que aparezca el nuevo al instante
-            await fecthanunaios();
-            
-        } catch (error) {
-            console.error("Error al crear el anuncio:", error.response?.data || error.message);
-            alert("Hubo un error al crear el anuncio.");
+    try {
+        const formData = new FormData();
+        formData.append('tipo', tipo);
+        formData.append('contenido', contenido);
+        formData.append('nombre', nombre);
+        
+        if (archivos) {
+            formData.append('archivo', archivos);
         }
-    };
+
+        await axios.post(`http://localhost:3000/clases/${idClase}/anuncios`, formData, {
+            headers: { 
+                authorization: token,
+            }
+        });
+        alert("Anuncio creado con éxito");
+        setModalCrearAbierto(false);
+        setContenido('');
+        setnombre('');
+        setTipo('anuncio');
+        setArchivo(null);
+        await fecthanunaios();
+    } catch (error) {
+        console.error("Error al crear el anuncio:", error.response?.data || error.message);
+        alert("Hubo un error al crear el anuncio.");
+    }
+};
 
     const fetchImgClase = async () => {
         try {
@@ -199,6 +203,11 @@ export default function Obteneranuncios({ refreshTrigger }) {
                                 value={contenido}
                                 onChange={(e) => setContenido(e.target.value)}
                             />
+                        </div>
+                        <div>
+                            <form>
+                                <input type="file" onChange={(e)=>setArchivo(e.target.files[0])}/>
+                            </form>
                         </div>
 
                         <div className="modal-botones">
