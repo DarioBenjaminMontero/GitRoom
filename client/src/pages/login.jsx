@@ -16,6 +16,8 @@ export default function Login() {
       });
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
+
+      window.dispatchEvent(new Event("usuarioActualizado"));
       console.log(localStorage);
       navigate("/")
     }
