@@ -33,7 +33,8 @@ const Entregas = sequelize.define('entregas', {
   }
 }, {
   tableName: 'entregas',
-  timestamps: false
+  timestamps: false,
+  indexes: [{ unique: true, fields: ['id_anuncio', 'id_alumno'] }]
 });
 
 module.exports = { Entregas };

@@ -8,7 +8,8 @@ export default function Obteneranuncios({ refreshTrigger }) {
     const idClase = localStorage.getItem('idclase');
     const [anucios, setanuncio] = useState([]);
     const [imagen, setimagen] = useState("");
-    
+    const [esProfesor, setEsProfesor] = useState(false);
+    const [archivos,setArchivo]=useState(null)
     // Estados para el modal de Crear Anuncio
     const [modalCrearAbierto, setModalCrearAbierto] = useState(false);
     const [nombre,setnombre]=useState("")
@@ -62,29 +63,33 @@ export default function Obteneranuncios({ refreshTrigger }) {
 
     const handleCrearAnuncio = async (e) => {
         if (e && e.preventDefault) e.preventDefault();
-        try {
-            // Ajusta la ruta de la API según cómo la tengas en tu backend para crear anuncios
-            await axios.post(`http://localhost:3000/clases/${idClase}/anuncios`, { 
-                contenido: contenido,
-                tipo: tipo,
-                nombre:nombre 
-            }, {
-                headers: { authorization: token }
-            });
-
-            alert("Anuncio creado con éxito");
-            setModalCrearAbierto(false);
-            setContenido('');
-            setTipo('anuncio');
-            
-            // Recargamos la lista de anuncios para que aparezca el nuevo al instante
-            await fecthanunaios();
-            
-        } catch (error) {
-            console.error("Error al crear el anuncio:", error.response?.data || error.message);
-            alert("Hubo un error al crear el anuncio.");
+    try {
+        const formData = new FormData();
+        formData.append('tipo', tipo);
+        formData.append('contenido', contenido);
+        formData.append('nombre', nombre);
+        
+        if (archivos) {
+            formData.append('archivo', archivos);
         }
-    };
+
+        await axios.post(`http://localhost:3000/clases/${idClase}/anuncios`, formData, {
+            headers: { 
+                authorization: token,
+            }
+        });
+        alert("Anuncio creado con éxito");
+        setModalCrearAbierto(false);
+        setContenido('');
+        setnombre('');
+        setTipo('anuncio');
+        setArchivo(null);
+        await fecthanunaios();
+    } catch (error) {
+        console.error("Error al crear el anuncio:", error.response?.data || error.message);
+        alert("Hubo un error al crear el anuncio.");
+    }
+};
 
     const fetchImgClase = async () => {
         try {
@@ -109,6 +114,8 @@ export default function Obteneranuncios({ refreshTrigger }) {
                 headers: { authorization: token }
             });
 
+            setEsProfesor(response.data?.esProfesor === true);
+
             if (response.data && Array.isArray(response.data.anuncio)) {
                 setanuncio(response.data.anuncio);
             } else if (Array.isArray(response.data)) {
@@ -119,6 +126,7 @@ export default function Obteneranuncios({ refreshTrigger }) {
         } catch (error) {
             console.error('Error al buscar anuncios de la clase', error.response?.data || error.message);
             setanuncio([]);
+            setEsProfesor(false);
         }
     };
 
@@ -131,10 +139,12 @@ export default function Obteneranuncios({ refreshTrigger }) {
             )}
             
             <div className="anuncios-grid">
-                {/* Botón que abre el modal */}
-                <button className="btn-nuevo-anuncio" onClick={() => setModalCrearAbierto(true)}>
-                    + Nuevo Anuncio
-                </button>
+                {/* Botón que abre el modal, solo para el profesor de la clase */}
+                {esProfesor && (
+                    <button className="btn-nuevo-anuncio" onClick={() => setModalCrearAbierto(true)}>
+                        + Nuevo Anuncio
+                    </button>
+                )}
 
                 {anucios.length > 0 ? (
                     anucios.map((anuncio, index) => (
@@ -167,12 +177,13 @@ export default function Obteneranuncios({ refreshTrigger }) {
                         
                         <div className="modal-seccion">
                             <label style={{ fontWeight: "bold", display: "block", marginBottom: "4px" }}>Tipo</label>
-                            <input
-                                type="text"
-                                placeholder="Ej: Anuncio, Tarea, Material"
-                                value={tipo}
-                                onChange={(e) => setTipo(e.target.value)}
-                            />
+                            <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+                                <option value="anuncio">Anuncio</option>
+                                <option value="tarea">Tarea</option>
+                                <option value="prueba">Prueba</option>
+                                <option value="cuestonario">Cuestionario</option>
+                                <option value="foro">Foro</option>
+                            </select>
                         </div>
                         <div className="modal-seccion">
                             <label style={{ fontWeight: "bold", display: "block", marginBottom: "4px" }}>Titulo</label>
@@ -192,6 +203,11 @@ export default function Obteneranuncios({ refreshTrigger }) {
                                 value={contenido}
                                 onChange={(e) => setContenido(e.target.value)}
                             />
+                        </div>
+                        <div>
+                            <form>
+                                <input type="file" onChange={(e)=>setArchivo(e.target.files[0])}/>
+                            </form>
                         </div>
 
                         <div className="modal-botones">
