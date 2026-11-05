@@ -171,7 +171,7 @@ const obtenerDatosUsuario = async (req, res) => {
     }
 }
 
-   const obtenerPerfilUsuario = async (req, res) => {
+const obtenerPerfilUsuario = async (req, res) => {
     const id = Number(req.params.id);
 
 
@@ -235,37 +235,110 @@ const editarFotoPerfil = async (req, res) => {
     }
 
 }
-const buscarUsuarios = async (req, res) => {
-  try {
-    const { q } = req.query;
 
-    if (!q || !q.trim()) {
-      return res.status(400).json({ mensaje: 'Ingresá un texto para buscar' });
+const quiereModificarPerfil = async (req, res) => {
+    try {
+        const CorreoDeCuenta = req.user.gmail;
+
+        const IdUsuario = req.user.id;
+
+        const tokenPerfil = jwt.sign(
+            { id: IdUsuario, Gmail: CorreoDeCuenta },
+            JWT_SECRET,
+            { expiresIn: '1h' }
+        )
+
+
+        res.status(200).json({ message: 'Token de modificación de perfil generado con éxito', tokenPerfil });
+
+
+
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+}
+
+const cambiarContraseña = async (req, res) => {
+    const { nuevaContraseña } = req.body;
+
+    try {
+        const userId = req.user.id;
+
+        const contraseñaHasheada = await bcrypt.hash(nuevaContraseña, 10);
+
+        await usuarios.update(
+            { contraseña: contraseñaHasheada },
+            { where: { id_usuario: userId } }
+        );
+
+        return res.status(200).json({ message: 'Contraseña actualizada con éxito' });
+
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
     }
 
-    // separa por palabras: "juan perez" busca juan Y perez
-    const palabras = q.trim().split(/\s+/);
 
-    const resultado = await usuarios.findAll({
-      where: {
-        [Op.and]: palabras.map((p) => ({
-          [Op.or]: [
-            { nombre: { [Op.like]: `%${p}%` } },
-            { apellido: { [Op.like]: `%${p}%` } },
-            { mail: { [Op.like]: `%${p}%` } },
-          ],
-        })),
-      },
-      attributes: { exclude: ['contraseña'] },
-      limit: 20,
-    });
 
-    res.json(resultado);
-  } catch (error) {
-    res.status(500).json({ mensaje: 'Error al buscar usuarios', error: error.message });
-  }
+}
+
+const cambiarNombre = async (req, res) => {
+    const { nuevoNombre, nuevoApellido } = req.body;
+
+    try {
+        const userId = req.user.id;
+
+        await usuarios.update(
+            {
+                nombre: nuevoNombre,
+                apellido: nuevoApellido
+            },
+            {
+                where: { id_usuario: userId }
+            }
+        );
+
+        return res.status(200).json({
+            message: "Nombre y apellido actualizados con éxito",
+            nombre: nuevoNombre,
+            apellido: nuevoApellido
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+
+const buscarUsuarios = async (req, res) => {
+    try {
+        const { q } = req.query;
+
+        if (!q || !q.trim()) {
+            return res.status(400).json({ mensaje: 'Ingresá un texto para buscar' });
+        }
+
+        // separa por palabras: "juan perez" busca juan Y perez
+        const palabras = q.trim().split(/\s+/);
+
+        const resultado = await usuarios.findAll({
+            where: {
+                [Op.and]: palabras.map((p) => ({
+                    [Op.or]: [
+                        { nombre: { [Op.like]: `%${p}%` } },
+                        { apellido: { [Op.like]: `%${p}%` } },
+                        { mail: { [Op.like]: `%${p}%` } },
+                    ],
+                })),
+            },
+            attributes: { exclude: ['contraseña'] },
+            limit: 20,
+        });
+
+        res.json(resultado);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al buscar usuarios', error: error.message });
+    }
 };
 
 module.exports = {
-    login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario, buscarUsuarios, obtenerClasesUsuarios
+    login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario, buscarUsuarios, obtenerClasesUsuarios, quiereModificarPerfil, cambiarContraseña, cambiarNombre
 };

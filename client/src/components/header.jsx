@@ -14,8 +14,21 @@ export default function Header({ onClaseCreada }) {
   const [clases, setClases] = useState([]);
 
   const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user'));
+  const [user, setUser] = useState(() => {
+    return JSON.parse(localStorage.getItem('user'));
+  });
 
+  useEffect(() => {
+    const actualizarUsuario = () => {
+      setUser(JSON.parse(localStorage.getItem('user')));
+    };
+
+    window.addEventListener('usuarioActualizado', actualizarUsuario);
+
+    return () => {
+      window.removeEventListener('usuarioActualizado', actualizarUsuario);
+    };
+  }, []);
   useEffect(() => {
     if (token) {
       obtenerClasesHeader();

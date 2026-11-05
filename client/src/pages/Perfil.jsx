@@ -14,6 +14,8 @@ const [imagen, setImagen] = useState('');
 const esMiPerfil = !id || String(id) === String(usuarioGuardado?.id); //
 const [archivo, setArchivo] = useState(null);
     const [mensaje, setMensaje] = useState('');
+    const navigate = useNavigate();
+    
 
     const handleFileChange = (e) => {
         setArchivo(e.target.files[0]);
@@ -157,7 +159,7 @@ const [archivo, setArchivo] = useState(null);
     )}
     <h3>{nombre}</h3>
     <h4>{descripcion}</h4>
-    {esMiPerfil && <button>Editar usuario</button>}
+    {esMiPerfil && <button onClick={() => { navigate("/modificarPerfil"); setMenuAbierto(false) }}>Editar usuario</button>}
 </div>
 
                     <div id="reposRecientes">

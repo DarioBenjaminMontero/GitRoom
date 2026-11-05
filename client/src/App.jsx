@@ -9,6 +9,7 @@ import Repositorios from './pages/repositorios.jsx'
 import RepositorioCarpetas from './pages/repositorioCarpetas.jsx'
 import Repositorio from './pages/Repositorio.jsx'
 import NewRepository from './pages/NewRepository.jsx'
+import ModificarPerfil from './pages/modificarPerfil.jsx'
 import Perfil from './pages/Perfil.jsx'
 import Chat from './pages/chats.jsx'
 import Obteneranuncios from './pages/clases.jsx'
@@ -38,6 +39,7 @@ function App() {
         <Route path='/newRepository' element={<NewRepository />} />
         <Route path='/perfil' element={<Perfil />} />
         <Route path="/perfil/:id" element={<Perfil />} />
+        <Route path='/modificarPerfil' element={<ModificarPerfil />} />
         <Route path='/chats' element={<Chat />} />
         <Route path="/buscar-usuarios" element={<BuscarUsuarios />} />
         <Route path='/clase' element ={<Obteneranuncios/>}></Route>

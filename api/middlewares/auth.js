@@ -26,7 +26,7 @@ const isAuth = (req,res,next) =>{
 
             req.user = {
             id: user.id_usuario,
-            gmail: user.gmail
+            gmail: user.email
             }
 
             
