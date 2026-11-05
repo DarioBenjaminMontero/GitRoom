@@ -12,10 +12,12 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
     "express": "^5.2.1",
     "i": "^0.3.7",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.4.0",
+    "nodemailer": "^10.3.1",
     "pg": "^8.23.0",
     "sequelize": "^6.37.8",
     "socket.io": "^4.8.4"

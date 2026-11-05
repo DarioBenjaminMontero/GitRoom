@@ -7,29 +7,140 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { isAdmin } = require("../middlewares/esAdmin.js");
 const JWT_SECRET = 'Ranas_Todas_Flacas_Musculosas';
+
+
+
+const nodemailer = require('nodemailer');
+const SECRET = process.env.JWT_SECRET || 'Ranas_Todas_Flacas_Musculosas';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const PURPOSE = 'recuperacion-contraseña';
+const MIN_LARGO_CONTRASEÑA = 8;
+
+// Misma respuesta exista o no el correo, para no revelar qué mails están registrados.
+const MENSAJE_GENERICO = 'Si el correo está registrado, vas a recibir un enlace para recuperar tu contraseña.';
+
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
+
+
+
+const solicitarRecuperacion = async (req, res) => {
+    //typeof pregunta de que tipo es, trim corta los espacios y tolowercase lo transforma en minuscula,
+    //  los '' guardan un espacio vacio si no hay nada
+    const mail = typeof req.body?.mail === 'string' ? req.body.mail.trim().toLowerCase() : '';
+
+    if (!mail) {
+        return res.status(400).json({ message: 'Ingresá tu correo electrónico.' });
+    }
+
+    try {
+        // Búsqueda sin distinguir mayúsculas (Registro guarda el mail tal cual lo escribió la persona)
+        const usuario = await usuarios.findOne({
+            where: {
+                mail
+            }
+        });
+
+        if (usuario) {
+            const token = jwt.sign(
+                { id: usuario.id_usuario, purpose: PURPOSE },
+                SECRET + usuario.contraseña, // ver authRecuperacion: invalida el enlace al cambiar la clave
+                { expiresIn: '15m' }
+            );
+
+
+            //es el enlace que se envia al mail para que el usuario pueda cambiar la contraseña,
+            //  se le agrega el token generado
+            const enlace = `${FRONTEND_URL}/restablecer-contrasena/${token}`;
+
+            try {
+                await transporter.sendMail({
+                    //
+                    from: `"GitRoom" <${process.env.EMAIL_USER}>`,
+                    to: usuario.mail,
+                    subject: 'Recuperación de contraseña - GitRoom',
+                    html: `
+                        <h2>Recuperar contraseña</h2>
+                        <p>Pediste cambiar tu contraseña de GitRoom. El enlace vence en 15 minutos y sirve una sola vez.</p>
+                        <p><a href="${enlace}">Crear nueva contraseña</a></p>
+                        <p>Si no fuiste vos, ignorá este correo: tu contraseña no cambia.</p>
+                    `
+                });
+                //error mail se establece aca, y si hay error agarra el valor
+            } catch (errorMail) {
+                // Si fallara el envío solo para mails existentes, la respuesta delataría cuáles existen.
+                // Por eso se registra el error y se responde igual.
+                console.error('No se pudo enviar el mail de recuperación:', errorMail.message);
+            }
+        }
+
+        return res.status(200).json({ message: MENSAJE_GENERICO });
+    } catch (error) {
+        console.error('Error en solicitarRecuperacion:', error);
+        return res.status(500).json({ message: 'Error en el servidor' });
+    }
+};
+ 
+// GET /users/verificar-recuperacion   header: recuperacion = <token>
+// Llega acá solo si authRecuperacion aprobó el token. Sirve para que el frontend
+// sepa si el enlace sigue vigente antes de mostrar el formulario.
+const verificarTokenRecuperacion = (req, res) => {
+    return res.status(200).json({ message: 'Enlace válido' });
+};
+ 
+// POST /users/restablecer-contrasena   header: recuperacion = <token>   body: { nuevaContraseña }
+const restablecerContrasena = async (req, res) => {
+    const nuevaContraseña = req.body?.nuevaContraseña;
+ 
+    if (typeof nuevaContraseña !== 'string' || nuevaContraseña.length < MIN_LARGO_CONTRASEÑA) {
+        return res.status(400).json({
+            message: `La contraseña debe tener al menos ${MIN_LARGO_CONTRASEÑA} caracteres.`
+        });
+    }
+ 
+    try {
+        const contraseñaHasheada = await bcrypt.hash(nuevaContraseña, 10);
+ 
+        await req.usuarioRecuperacion.update({ contraseña: contraseñaHasheada });
+ 
+        return res.status(200).json({ message: 'Contraseña restablecida con éxito.' });
+    } catch (error) {
+        console.error('Error en restablecerContrasena:', error);
+        return res.status(500).json({ message: 'Error en el servidor' });
+    }
+};
+ 
+
+
 const Registro = async (req, res) => {
 
 
     const { nombre, contraseña, año_division, apellido, mail } = req.body
+    const mailNormalizado = typeof mail === 'string' ? mail.trim().toLowerCase() : '';
 
+if (!mailNormalizado) {
+    return res.status(400).json({
+        message: "El correo es obligatorio."
+    });
+}
 
-    const existe = await usuarios.findOne({
-        where: {
-            mail: mail
-        }
-    })
-    if (existe) {
-        return;
-
-
+const existe = await usuarios.findOne({
+    where: {
+        mail: mailNormalizado
     }
-
+});
 
     const contraseñaHasheada = await bcrypt.hash(contraseña, 10)
     try {
-        const usuario = usuarios.create({
+        const usuario = await usuarios.create({
             nombre,
-            mail,
+            mail: mailNormalizado,
             apellido,
             contraseña: contraseñaHasheada,
             año_division
@@ -51,9 +162,10 @@ const Registro = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
+        emailNormalizado = typeof email === 'string' ? email.trim().toLowerCase() : '';
 
         // Busca el mail del usuario
-        const user = await usuarios.findOne({ where: { mail: email } });
+        const user = await usuarios.findOne({ where: { mail: emailNormalizado } });
         if (!user) {
             return res.status(404).json({ message: "Usuario no encontrado" });
         }
@@ -389,8 +501,11 @@ const borrarCuenta = async (req, res) => {
         return res.status(500).json({ error: error.message });
 
 
-}
+    }
 
 }
+
+
 module.exports = {
-    login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario, buscarUsuarios, obtenerClasesUsuarios, quiereModificarPerfil, cambiarContraseña, cambiarNombre, borrarCuenta};
+    login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario, buscarUsuarios, obtenerClasesUsuarios, quiereModificarPerfil, cambiarContraseña, cambiarNombre, borrarCuenta, verificarTokenRecuperacion, restablecerContrasena, solicitarRecuperacion
+};

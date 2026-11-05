@@ -1,6 +1,9 @@
 const { Router } = require("express");
-const {  login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario, buscarUsuarios, obtenerClasesUsuarios, quiereModificarPerfil, cambiarContraseña, cambiarNombre, borrarCuenta} = require("../controllers/usuarioController.js");
+const { login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil,
+obtenerPerfilUsuario, buscarUsuarios, obtenerClasesUsuarios, quiereModificarPerfil,
+ cambiarContraseña, cambiarNombre, borrarCuenta, solicitarRecuperacion, verificarTokenRecuperacion, restablecerContrasena} = require("../controllers/usuarioController.js");
 const {isAuth} = require("../middlewares/auth.js");
+const {authRecuperacion} = require("../middlewares/authRecuperacion.js");
 const {authModificarPerfil} = require("../middlewares/authModificarPerfil.js");
 const {upload}= require('../middlewares/multer.js');
 
@@ -18,5 +21,8 @@ router.get('/quiereModificarPerfil', isAuth,quiereModificarPerfil);
 router.post('/cambiarContra', isAuth, authModificarPerfil, cambiarContraseña);
 router.post('/cambiarNombre', isAuth, authModificarPerfil, cambiarNombre);
 router.delete('/borrarCuenta', isAuth, borrarCuenta);
+router.post('/recuperar-contrasena', solicitarRecuperacion);
+router.get('/verificar-recuperacion', authRecuperacion, verificarTokenRecuperacion);
+router.post('/restablecer-contrasena', authRecuperacion, restablecerContrasena);
 
 module.exports = router;

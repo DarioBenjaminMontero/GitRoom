@@ -1,4 +1,5 @@
 const express = require('express');
+require('dotenv').config();
 const http = require('http');//🐸http es necesario para que socket.io funcione con express
 const { Server } = require('socket.io');
 const cors = require('cors');
@@ -74,7 +75,7 @@ sequelize.authenticate()
     console.log(' Conexión a la base de datos PostgreSQL establecida con éxito.');
     
     // Opcional: puedes intentar sincronizar sin detener el servidor si falla
-    sequelize.sync({ force: true }).catch(err => {
+    sequelize.sync({ force: false }).catch(err => {
       console.warn(' Advertencia: Algunas tablas no se pudieron sincronizar:', err.message);
     });
 
