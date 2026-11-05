@@ -81,6 +81,9 @@ Anuncios.belongsTo(clases, { foreignKey: 'id_clase' });
 Anuncios.hasMany(Comentarios, { foreignKey : 'id_anuncio'})
 Comentarios.belongsTo(Anuncios, {foreignKey : 'id_anuncio' })
 
+usuarios.hasMany(Comentarios, { foreignKey: 'id_usuario' })
+Comentarios.belongsTo(usuarios, { as: 'autor', foreignKey: 'id_usuario' })
+
 Anuncios.hasMany(Entregas, { foreignKey: 'id_anuncio' });
 Entregas.belongsTo(Anuncios, { foreignKey: 'id_anuncio' });
 
