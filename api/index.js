@@ -48,6 +48,7 @@ app.use('/users', routerUsuario);
 app.use("/repositorios", routerRepositorio)
 app.use('/clases',routerClases)
 app.use('/chats', routerChats)
+app.use('/crud',routerCrud)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 //🐸esto nos sirve para saber que usuario esta en un chat, si lo esta o esta desconectado
 io.on('connection', (socket) => {
