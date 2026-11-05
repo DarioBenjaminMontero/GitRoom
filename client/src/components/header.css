@@ -23,6 +23,7 @@
   flex-direction: column;
   gap: 12px;
   text-align: left;
+  overflow-y: auto;
   transform: translateX(-100%);
   transition: transform 0.3s;
 }
@@ -151,4 +152,3 @@
 .btn-unirse.activo:hover {
   background-color: #1557b0;
 }
-

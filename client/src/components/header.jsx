@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import GitRoomLogo from '../assets/GitRoom_Logo.png'
@@ -12,6 +12,7 @@ export default function Header({ onClaseCreada }) {
   const [nombreClase, setNombreClase] = useState('');
   const [codigoClase, setCodigoClase] = useState('');
   const [clases, setClases] = useState([]);
+  const [tareasPendientes, setTareasPendientes] = useState([]);
 
   const token = localStorage.getItem('token');
   const [user, setUser] = useState(() => {
@@ -50,6 +51,21 @@ export default function Header({ onClaseCreada }) {
       }
     } catch (error) {
       console.error('Error al obtener clases para el menu lateral:', error);
+    }
+  };
+
+  const obtenerTareasPendientes = async () => {
+    try {
+      const response = await axios.get(
+        'http://localhost:3000/clases/tareas-pendientes',
+        { headers: { authorization: token } }
+      );
+
+      setTareasPendientes(
+        Array.isArray(response.data.tareas) ? response.data.tareas : []
+      );
+    } catch (error) {
+      console.error('Error al obtener tareas pendientes:', error);
     }
   };
 
@@ -117,7 +133,16 @@ export default function Header({ onClaseCreada }) {
 
   return (
     <section id="header">
-      <button id="menu-boton" onClick={() => setMenuAbierto(true)}>☰</button>
+      <button
+        id="menu-boton"
+        onClick={() => {
+          setMenuAbierto(true);
+          obtenerClasesHeader();
+          obtenerTareasPendientes();
+        }}
+      >
+        ☰
+      </button>
 
       {menuAbierto && <div className="menu-fondo" onClick={() => setMenuAbierto(false)} />}
 
@@ -157,6 +182,38 @@ export default function Header({ onClaseCreada }) {
             </div>
           ) : (
             <p style={{ fontSize: "12px", color: "#888" }}>Sin clases inscriptas</p>
+          )}
+        </div>
+
+        <div style={{ padding: "0 8px", textAlign: "left" }}>
+          <p style={{ fontSize: "12px", color: "#aaa", marginBottom: "8px" }}>TAREAS PENDIENTES</p>
+          {tareasPendientes.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              {tareasPendientes.map((tarea) => (
+                <button
+                  key={tarea.id_anuncio}
+                  onClick={() => {
+                    localStorage.setItem('idanuncio', tarea.id_anuncio);
+                    navigate('/anuncio');
+                    setMenuAbierto(false);
+                  }}
+                  style={{
+                    textAlign: "left",
+                    backgroundColor: "#2e335a",
+                    color: "white",
+                    border: "none",
+                    padding: "8px",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontSize: "13px"
+                  }}
+                >
+                  📝 {tarea.nombre}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p style={{ fontSize: "12px", color: "#888" }}>No tienes tareas pendientes</p>
           )}
         </div>
       </aside>
@@ -245,6 +302,7 @@ export default function Header({ onClaseCreada }) {
           </div>
         </div>
       )}
+
     </section>
   );
 }
