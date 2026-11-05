@@ -3,7 +3,7 @@
 const isAdmin = (req,res,next) =>{
 
     try {
-        if (req.user && req.user.role === 'admin') {
+        if (req.user && req.user.admin === true) {
             next();
         } else {
             return res.status(403).json({ message: 'Acceso denegado. Se requiere rol de administrador.' });
