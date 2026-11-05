@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const {  login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario, buscarUsuarios, obtenerClasesUsuarios, quiereModificarPerfil, cambiarContraseña, cambiarNombre} = require("../controllers/usuarioController.js");
+const {  login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario, buscarUsuarios, obtenerClasesUsuarios, quiereModificarPerfil, cambiarContraseña, cambiarNombre, borrarCuenta} = require("../controllers/usuarioController.js");
 const {isAuth} = require("../middlewares/auth.js");
 const {authModificarPerfil} = require("../middlewares/authModificarPerfil.js");
 const {upload}= require('../middlewares/multer.js');
@@ -17,6 +17,6 @@ router.get('/clases/:id', isAuth, obtenerClasesUsuarios);
 router.get('/quiereModificarPerfil', isAuth,quiereModificarPerfil);
 router.post('/cambiarContra', isAuth, authModificarPerfil, cambiarContraseña);
 router.post('/cambiarNombre', isAuth, authModificarPerfil, cambiarNombre);
-
+router.delete('/borrarCuenta', isAuth, borrarCuenta);
 
 module.exports = router;

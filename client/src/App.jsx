@@ -10,6 +10,7 @@ import RepositorioCarpetas from './pages/repositorioCarpetas.jsx'
 import Repositorio from './pages/Repositorio.jsx'
 import NewRepository from './pages/NewRepository.jsx'
 import ModificarPerfil from './pages/modificarPerfil.jsx'
+import Crud from './pages/crud.jsx'
 import Perfil from './pages/Perfil.jsx'
 import Chat from './pages/chats.jsx'
 import Obteneranuncios from './pages/clases.jsx'
@@ -44,6 +45,7 @@ function App() {
         <Route path="/buscar-usuarios" element={<BuscarUsuarios />} />
         <Route path='/clase' element ={<Obteneranuncios/>}></Route>
         <Route path='/anuncio' element ={<InfoAnuncio/>}></Route>
+        <Route path='/crud' element ={<Crud/>}></Route>
       </Routes>
     </>
   )

@@ -5,6 +5,7 @@ const { clases } = require("../models/clasesModel.js")
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { isAdmin } = require("../middlewares/esAdmin.js");
 const JWT_SECRET = 'Ranas_Todas_Flacas_Musculosas';
 const Registro = async (req, res) => {
 
@@ -73,7 +74,12 @@ const login = async (req, res) => {
         res.status(200).json({
             message: "Login exitoso",
             token,
-            user: { id: user.id_usuario, username: user.nombre }
+            user: {
+                id: user.id_usuario,
+                username: user.nombre,
+                apellido: user.apellido,
+                admin: user.admin
+            }
         });
     } catch (error) {
         res.status(500).json({ error: "Error en el servidor", details: error.message });
@@ -286,12 +292,24 @@ const cambiarNombre = async (req, res) => {
 
     try {
         const userId = req.user.id;
+        const datosActualizados = {};
+
+        if (nuevoNombre && nuevoNombre.trim()) {
+            datosActualizados.nombre = nuevoNombre.trim();
+        }
+
+        if (nuevoApellido && nuevoApellido.trim()) {
+            datosActualizados.apellido = nuevoApellido.trim();
+        }
+
+        if (Object.keys(datosActualizados).length === 0) {
+            return res.status(400).json({
+                message: "Debe ingresar un nombre o un apellido nuevo."
+            });
+        }
 
         await usuarios.update(
-            {
-                nombre: nuevoNombre,
-                apellido: nuevoApellido
-            },
+            datosActualizados,
             {
                 where: { id_usuario: userId }
             }
@@ -299,8 +317,8 @@ const cambiarNombre = async (req, res) => {
 
         return res.status(200).json({
             message: "Nombre y apellido actualizados con éxito",
-            nombre: nuevoNombre,
-            apellido: nuevoApellido
+            nombre: datosActualizados.nombre,
+            apellido: datosActualizados.apellido
         });
     } catch (error) {
         return res.status(500).json({ error: error.message });
@@ -339,6 +357,40 @@ const buscarUsuarios = async (req, res) => {
     }
 };
 
+
+const borrarCuenta = async (req, res) => {
+
+    const userId = req.user.id;
+    const contraseñaIngresada = req.body.contraseña;
+
+    try {
+
+        const user = await usuarios.findByPk(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        const contraseñaUsuario = user.contraseña;
+
+
+        const contraseñaValida = await bcrypt.compare(contraseñaIngresada, contraseñaUsuario);
+
+        if (!contraseñaValida) {
+            return res.status(401).json({ message: 'Contraseña incorrecta' });
+        }
+
+        // Eliminar el usuario de la base de datos
+        await usuarios.destroy({ where: { id_usuario: userId } });
+
+        return res.status(200).json({ message: 'Cuenta eliminada con éxito' });
+
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+
+
+}
+
+}
 module.exports = {
-    login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario, buscarUsuarios, obtenerClasesUsuarios, quiereModificarPerfil, cambiarContraseña, cambiarNombre
-};
+    login, Registro, obtenerClases, obtenerDatosUsuario, editarFotoPerfil, obtenerPerfilUsuario, buscarUsuarios, obtenerClasesUsuarios, quiereModificarPerfil, cambiarContraseña, cambiarNombre, borrarCuenta};

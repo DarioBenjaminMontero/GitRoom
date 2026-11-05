@@ -46,12 +46,20 @@ function ModificarPerfil() {
         // Evita que el formulario recargue la página normalmente.
         event.preventDefault();
 
+        const nombreModificado = nuevoNombre.trim();
+        const apellidoModificado = nuevoApellido.trim();
+
+        if (!nombreModificado && !apellidoModificado) {
+            alert("Ingresá un nombre nuevo, un apellido nuevo, o ambos.");
+            return;
+        }
+
         try {
             await axios.post(
                 "http://localhost:3000/users/cambiarNombre",
                 {
-                    nuevoNombre,
-                    nuevoApellido
+                    nuevoNombre: nombreModificado || undefined,
+                    nuevoApellido: apellidoModificado || undefined
                 },
                 {
                     headers: {
@@ -65,8 +73,12 @@ function ModificarPerfil() {
             const usuario = JSON.parse(localStorage.getItem("user")) || {};
 
             // Cambia solamente los datos nuevos dentro del objeto existente.
-            usuario.username = nuevoNombre;
-            usuario.apellido = nuevoApellido;
+            if (nombreModificado) {
+                usuario.username = nombreModificado;
+            }
+            if (apellidoModificado) {
+                usuario.apellido = apellidoModificado;
+            }
 
             // JSON.stringify convierte el objeto en texto para guardarlo.
             localStorage.setItem("user", JSON.stringify(usuario));
@@ -123,7 +135,6 @@ function ModificarPerfil() {
                         value={nuevoNombre}
                         onChange={(event) => setNuevoNombre(event.target.value)}
                         placeholder="Ingrese su nuevo nombre"
-                        required
                     />
                 </label>
 
@@ -134,7 +145,6 @@ function ModificarPerfil() {
                         value={nuevoApellido}
                         onChange={(event) => setNuevoApellido(event.target.value)}
                         placeholder="Ingrese su nuevo apellido"
-                        required
                     />
                 </label>
 
