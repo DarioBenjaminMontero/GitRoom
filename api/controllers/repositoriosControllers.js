@@ -1,7 +1,7 @@
 const { repositorios, UsuariosRepositorios, Archivos, usuarios } = require("../models/index.js")
 const path = require("path");
 const fs = require("fs/promises");
-
+const crypto = require("crypto");
 const validarRepositorio = async (req, res, next) => {
     try {
         const id_repo = Number(req.params.id || req.params.idRepo || req.params.id_repo)
@@ -160,82 +160,173 @@ const traerColaboradores = async (req, res) => {
     }
 }
 
+
 const guardarArchivoRepositorio = async (req, res) => {
-    const archivosSubidos = req.files || []
-    const limpiarArchivos = async (rutas) => {
-        await Promise.all(rutas.map(async (ruta) => {
-            try {
-                await fs.unlink(ruta)
-            } catch (error) {
-                if (error.code !== "ENOENT") {
-                    console.error("No se pudo limpiar un archivo subido:", error)
+    const archivosSubidos = req.files || [];
+
+    const limpiarTemporales = async () => {
+        await Promise.all(
+            archivosSubidos.map(async (archivo) => {
+                try {
+                    await fs.unlink(archivo.path);
+                } catch (error) {
+                    if (error.code !== "ENOENT") {
+                        console.error("Error limpiando temporal:", error);
+                    }
                 }
-            }
-        }))
-    }
+            })
+        );
+    };
 
     if (archivosSubidos.length === 0) {
-        return res.status(400).json({ message: "Seleccioná al menos un archivo para subir" })
+        return res.status(400).json({
+            message: "Seleccioná al menos un archivo para subir"
+        });
     }
 
-    const movidos = []
     try {
-        const idRepo = req.params.id;
-        const rutas = Array.isArray(req.body.rutas) ? req.body.rutas : [req.body.rutas]
-        if (rutas.length !== archivosSubidos.length || rutas.some(ruta => typeof ruta !== "string")) {
-            await limpiarArchivos(archivosSubidos.map(archivo => archivo.path))
-            return res.status(400).json({ message: "La estructura de archivos recibida no es válida" })
+        const idRepo = Number(req.params.id);
+
+        const rutas = Array.isArray(req.body.rutas)
+            ? req.body.rutas
+            : [req.body.rutas];
+
+        if (
+            rutas.length !== archivosSubidos.length ||
+            rutas.some(ruta => typeof ruta !== "string")
+        ) {
+            await limpiarTemporales();
+
+            return res.status(400).json({
+                message: "La estructura de archivos recibida no es válida"
+            });
         }
 
         const archivosGuardados = [];
+
         for (let i = 0; i < archivosSubidos.length; i++) {
-            const archivo = archivosSubidos[i]
-            const rutaNormalizada = rutas[i].replace(/\\/g, "/")
-            const segmentos = rutaNormalizada.split("/")
+            const archivo = archivosSubidos[i];
+
+            const rutaNormalizada = rutas[i].replace(/\\/g, "/");
+
+            const segmentos = rutaNormalizada.split("/");
+
+
             if (
                 !rutaNormalizada ||
                 rutaNormalizada.startsWith("/") ||
                 /^[a-zA-Z]:/.test(rutaNormalizada) ||
-                segmentos.some(segmento => !segmento || segmento === "." || segmento === "..")
+                segmentos.some(segmento =>
+                    !segmento ||
+                    segmento === "." ||
+                    segmento === ".."
+                )
             ) {
-                throw new Error("La ruta relativa de uno de los archivos no es válida")
+                throw new Error(
+                    "La ruta relativa de uno de los archivos no es válida"
+                );
             }
 
-            const directorios = segmentos.slice(0, -1).map(segmento =>
-                segmento.replace(/[<>:"|?*\x00-\x1f]/g, "_")
-            )
-            const rutaRelativa = [...directorios, archivo.filename].join("/")
+            const directorios = segmentos
+                .slice(0, -1)
+                .map(segmento =>
+                    segmento.replace(/[<>:"|?*\x00-\x1f]/g, "_")
+                );
+
+
+            const nombreOriginal = segmentos[segmentos.length - 1]
+                .replace(/[<>:"/\\|?*\x00-\x1f]/g, "_")
+                .slice(0, 120) || "archivo";
+
+
+            const rutaLogica = [...directorios, nombreOriginal].join("/");
+
+            const identificador = crypto
+                .createHash("sha256")
+                .update(rutaLogica)
+                .digest("hex");
+
+            const nombreFisico = `${identificador}--${nombreOriginal}`;
+
+            const rutaRelativa = [
+                ...directorios,
+                nombreFisico
+            ].join("/");
+
+
             const destinoFinal = path.join(
                 __dirname,
                 "../uploads/repos",
                 String(idRepo),
                 ...rutaRelativa.split("/")
-            )
-            await fs.mkdir(path.dirname(destinoFinal), { recursive: true })
-            await fs.rename(archivo.path, destinoFinal)
-            movidos.push(destinoFinal)
-            archivosGuardados.push({
-                ruta: `repos/${idRepo}/${rutaRelativa}`,
-                id_repo: Number(idRepo)
-            })
+            );
+
+            await fs.mkdir(path.dirname(destinoFinal), {
+                recursive: true
+            });
+
+
+            await fs.copyFile(archivo.path, destinoFinal);
+
+            await fs.unlink(archivo.path);
+
+
+            const rutaBD = `repos/${idRepo}/${rutaRelativa}`;
+
+
+            const archivoExistente = await Archivos.findOne({
+                where: {
+                    id_repo: idRepo,
+                    ruta: rutaBD
+                }
+            });
+
+            let registro;
+
+            if (archivoExistente) {
+
+
+                registro = archivoExistente;
+
+            } else {
+
+
+                registro = await Archivos.create({
+                    id_repo: idRepo,
+                    ruta: rutaBD
+                });
+
+            }
+
+            archivosGuardados.push(registro);
         }
-        const registros = await Archivos.bulkCreate(archivosGuardados)
+
         return res.status(201).json({
             message: "Archivos guardados correctamente",
-            archivos: registros
-        })
+            cantidad: archivosGuardados.length,
+            archivos: archivosGuardados
+        });
+
     } catch (error) {
-        await limpiarArchivos([
-            ...archivosSubidos.map(archivo => archivo.path),
-            ...movidos
-        ])
-        console.error("Error al guardar archivos del repositorio:", error)
-        const esRutaInvalida = error.message === "La ruta relativa de uno de los archivos no es válida"
+        await limpiarTemporales();
+
+        console.error(
+            "Error al guardar archivos del repositorio:",
+            error
+        );
+
+        const esRutaInvalida =
+            error.message ===
+            "La ruta relativa de uno de los archivos no es válida";
+
         return res.status(esRutaInvalida ? 400 : 500).json({
-            message: esRutaInvalida ? error.message : "No se pudieron guardar los archivos"
-        })
+            message: esRutaInvalida
+                ? error.message
+                : "No se pudieron guardar los archivos"
+        });
     }
-}
+};
+
 
 module.exports = {
     crearRepositorio,

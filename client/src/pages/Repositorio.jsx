@@ -122,7 +122,7 @@ const volverCarpeta = () => {
                         
 <div className="box-body" style={{
     padding: '16px',
-    background: '#fff'
+    background: '#000000'
 }}>
 
     {/* Navegación */}
@@ -172,7 +172,8 @@ const volverCarpeta = () => {
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         padding: '10px 0',
-                        borderBottom: '1px solid #eaeaea'
+                        borderBottom: '1px solid #eaeaea',
+                        color : "white"
                     }}
                 >
 
