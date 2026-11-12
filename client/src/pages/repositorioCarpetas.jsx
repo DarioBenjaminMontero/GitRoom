@@ -78,14 +78,20 @@ function RepositorioCarpetas() {
         try {
             setSubiendo(true);
             setMensaje("");
-            await axios.post(
-                `${API_URL}/repositorios/${id}/archivos`,
-                formData,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+            const respuesta = await axios.post(
+    `${API_URL}/repositorios/${id}/archivos`,
+    formData,
+    {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+);
             setArchivosIndividuales([]);
             setArchivosCarpeta([]);
-            setMensaje(`${seleccion.length} archivo(s) subido(s) correctamente.`);
+            setMensaje(
+    `${seleccion.length} archivo(s) subido(s) correctamente. Commit #${respuesta.data.id_commit}`
+);
         } catch (error) {
             console.error("Error al subir archivos:", error);
             setMensaje(

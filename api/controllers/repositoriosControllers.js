@@ -1,7 +1,13 @@
-const { repositorios, UsuariosRepositorios, Archivos, usuarios } = require("../models/index.js")
-const path = require("path");
+const {
+    repositorios,
+    UsuariosRepositorios,
+    Archivos,
+    usuarios,
+    versionesArchivos
+} = require("../models/index.js");
 const fs = require("fs/promises");
 const crypto = require("crypto");
+const path = require("path");
 const validarRepositorio = async (req, res, next) => {
     try {
         const id_repo = Number(req.params.id || req.params.idRepo || req.params.id_repo)
@@ -160,6 +166,30 @@ const traerColaboradores = async (req, res) => {
     }
 }
 
+const obtenerArchivosRecursivos = async (directorio) => {
+    const elementos = await fs.readdir(directorio, {
+        withFileTypes: true
+    });
+
+    const archivos = [];
+
+    for (const elemento of elementos) {
+        const rutaCompleta = path.join(directorio, elemento.name);
+
+        if (elemento.isDirectory()) {
+            const archivosCarpeta = await obtenerArchivosRecursivos(
+                rutaCompleta
+            );
+
+            archivos.push(...archivosCarpeta);
+        } else if (elemento.isFile()) {
+            archivos.push(rutaCompleta);
+        }
+    }
+
+    return archivos;
+};
+
 
 const guardarArchivoRepositorio = async (req, res) => {
     const archivosSubidos = req.files || [];
@@ -187,6 +217,39 @@ const guardarArchivoRepositorio = async (req, res) => {
     try {
         const idRepo = Number(req.params.id);
 
+        const idCommit = req.commit.id_commit;
+        const idCommitPadre = req.commit.id_commit_padre;
+
+        const directorioRepo = path.join(
+            __dirname,
+            "../uploads/repos",
+            String(idRepo)
+        );
+
+        const directorioNuevo = path.join(
+            directorioRepo,
+            String(idCommit)
+        );
+
+        // 1. Creamos la carpeta del nuevo commit.
+        await fs.mkdir(directorioNuevo, {
+            recursive: true
+        });
+
+        // 2. Copiamos todos los archivos del commit anterior.
+        if (idCommitPadre) {
+            const directorioPadre = path.join(
+                directorioRepo,
+                String(idCommitPadre)
+            );
+
+            await fs.cp(directorioPadre, directorioNuevo, {
+                recursive: true,
+                force: true
+            });
+        }
+
+        // 3. Validamos las rutas recibidas desde el frontend.
         const rutas = Array.isArray(req.body.rutas)
             ? req.body.rutas
             : [req.body.rutas];
@@ -202,15 +265,13 @@ const guardarArchivoRepositorio = async (req, res) => {
             });
         }
 
-        const archivosGuardados = [];
-
+        // 4. Reemplazamos o agregamos los archivos subidos.
         for (let i = 0; i < archivosSubidos.length; i++) {
             const archivo = archivosSubidos[i];
 
             const rutaNormalizada = rutas[i].replace(/\\/g, "/");
 
             const segmentos = rutaNormalizada.split("/");
-
 
             if (
                 !rutaNormalizada ||
@@ -233,78 +294,77 @@ const guardarArchivoRepositorio = async (req, res) => {
                     segmento.replace(/[<>:"|?*\x00-\x1f]/g, "_")
                 );
 
-
             const nombreOriginal = segmentos[segmentos.length - 1]
                 .replace(/[<>:"/\\|?*\x00-\x1f]/g, "_")
                 .slice(0, 120) || "archivo";
 
-
-            const rutaLogica = [...directorios, nombreOriginal].join("/");
-
-            const identificador = crypto
-                .createHash("sha256")
-                .update(rutaLogica)
-                .digest("hex");
-
-            const nombreFisico = `${identificador}--${nombreOriginal}`;
-
-            const rutaRelativa = [
+            const rutaLogica = [
                 ...directorios,
-                nombreFisico
+                nombreOriginal
             ].join("/");
 
-
             const destinoFinal = path.join(
-                __dirname,
-                "../uploads/repos",
-                String(idRepo),
-                ...rutaRelativa.split("/")
+                directorioNuevo,
+                ...rutaLogica.split("/")
             );
 
             await fs.mkdir(path.dirname(destinoFinal), {
                 recursive: true
             });
 
-
+            // Si ya existía, lo reemplazamos.
             await fs.copyFile(archivo.path, destinoFinal);
 
+            // Eliminamos el archivo temporal de Multer.
             await fs.unlink(archivo.path);
+        }
 
+        // 5. Buscamos TODOS los archivos del nuevo commit.
+        const archivosFisicos = await obtenerArchivosRecursivos(
+            directorioNuevo
+        );
 
-            const rutaBD = `repos/${idRepo}/${rutaRelativa}`;
+        const versionesParaGuardar = [];
 
+        // 6. Registramos todos los archivos en la base de datos.
+        for (const rutaCompleta of archivosFisicos) {
 
-            const archivoExistente = await Archivos.findOne({
+            // Convertimos la ruta física en una ruta relativa.
+            const rutaLogica = path.relative(
+                directorioNuevo,
+                rutaCompleta
+            ).split(path.sep).join("/");
+
+            // Buscamos si este archivo ya existe en el repositorio.
+            const [registro] = await Archivos.findOrCreate({
                 where: {
                     id_repo: idRepo,
-                    ruta: rutaBD
+                    ruta: rutaLogica
+                },
+                defaults: {
+                    id_repo: idRepo,
+                    ruta: rutaLogica
                 }
             });
 
-            let registro;
+            // Preparamos su versión para este commit.
+            versionesParaGuardar.push({
+                id_commit: idCommit,
+                id_archivo: registro.id_archivo,
+                tipo: path.extname(rutaLogica).toLowerCase(),
+                ruta_fisica: `repos/${idRepo}/${idCommit}/${rutaLogica}`
+            });
+        }
 
-            if (archivoExistente) {
-
-
-                registro = archivoExistente;
-
-            } else {
-
-
-                registro = await Archivos.create({
-                    id_repo: idRepo,
-                    ruta: rutaBD
-                });
-
-            }
-
-            archivosGuardados.push(registro);
+        // 7. Guardamos todas las versiones juntas.
+        if (versionesParaGuardar.length > 0) {
+            await versionesArchivos.bulkCreate(versionesParaGuardar);
         }
 
         return res.status(201).json({
             message: "Archivos guardados correctamente",
-            cantidad: archivosGuardados.length,
-            archivos: archivosGuardados
+            cantidad: versionesParaGuardar.length,
+            id_commit: idCommit
         });
 
     } catch (error) {
@@ -326,6 +386,7 @@ const guardarArchivoRepositorio = async (req, res) => {
         });
     }
 };
+
 
 
 module.exports = {

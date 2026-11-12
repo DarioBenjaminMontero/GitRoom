@@ -13,6 +13,9 @@ export default function Repositorio() {
     const { idRepo } = useParams();
     const [carpetaActual, setCarpetaActual] = useState('');
     const navigate = useNavigate();
+    const [commits, setCommits] = useState([]);
+    const [commitSeleccionado, setCommitSeleccionado] = useState("");
+    const [errorArchivos, setErrorArchivos] = useState("");
 
     const traerInformacionRepositorio = useCallback(async () => {
         try {
@@ -20,7 +23,7 @@ export default function Repositorio() {
             const consulta = await axios.get(`http://localhost:3000/repositorios/conseguirInformacionRepositorio/${idRepo}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            
+
             setNombreRepo(consulta.data.nombre || '');
             setDescripcion(consulta.data.descripcion || '');
             setFecha(consulta.data.fecha || '');
@@ -29,7 +32,33 @@ export default function Repositorio() {
             console.error("Error al traer info del repo:", error.response?.data || error.message);
         }
     }, [idRepo]);
+    const traerCommits = useCallback(async () => {
+        try {
+            const token = localStorage.getItem("token");
 
+            const respuesta = await axios.get(
+                `http://localhost:3000/commits/repositorio/${idRepo}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            setCommits(respuesta.data || []);
+
+            if (respuesta.data?.length > 0) {
+                setCommitSeleccionado(
+                    String(respuesta.data[0].id_commit)
+                );
+            }
+        } catch (error) {
+            console.error(
+                "Error al traer commits:",
+                error.response?.data || error.message
+            );
+        }
+    }, [idRepo]);
     const traerColaboradores = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
@@ -43,51 +72,72 @@ export default function Repositorio() {
         }
     }, [idRepo]);
 
-    // <--- Nueva función para traer los archivos del repositorio
-    const traerArchivos = useCallback(async (carpeta = '') => {
-    try {
-        const token = localStorage.getItem('token');
+    const traerArchivos = useCallback(async (carpeta = "") => {
+        if (!commitSeleccionado) return;
 
-        const respuesta = await axios.get(
-            `http://localhost:3000/archivos/repositorio/${idRepo}/traerArchivos`,
-            {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                params: {
-                    carpeta
+        try {
+            setErrorArchivos("");
+            const token = localStorage.getItem("token");
+
+            const respuesta = await axios.get(
+                `http://localhost:3000/archivos/repositorio/${idRepo}/traerArchivos`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
+                    params: {
+                        carpeta,
+                        id_commit: commitSeleccionado
+                    }
                 }
-            }
-        );
+            );
 
-        setArchivos(respuesta.data || []);
-        setCarpetaActual(carpeta);
+            setArchivos(respuesta.data || []);
+            setCarpetaActual(carpeta);
 
-    } catch (error) {
-        console.error("Error al traer archivos:",
-            error.response?.data || error.message
-        );
-    }
-}, [idRepo]);
-const entrarCarpeta = (ruta) => {
-    traerArchivos(ruta);
-};
-const volverCarpeta = () => {
-    const partes = carpetaActual.split('/');
-
-    partes.pop();
-
-    const carpetaPadre = partes.join('/');
-
-    traerArchivos(carpetaPadre);
-};
-    useEffect(() => {
-        if (idRepo) {
-            traerInformacionRepositorio();
-            traerColaboradores();
-            traerArchivos(); // <--- Llamamos a la función al cargar el componente
+        } catch (error) {
+            console.error(
+                "Error al traer archivos:",
+                error.response?.data || error.message
+            );
+            setArchivos([]);
+            setErrorArchivos(
+                error.response?.data?.message ||
+                "No se pudieron cargar los archivos del repositorio."
+            );
         }
-    }, [idRepo, traerInformacionRepositorio, traerColaboradores, traerArchivos]);
+    }, [idRepo, commitSeleccionado]);
+    const entrarCarpeta = (ruta) => {
+        traerArchivos(ruta);
+    };
+    const volverCarpeta = () => {
+        const partes = carpetaActual.split('/');
+
+        partes.pop();
+
+        const carpetaPadre = partes.join('/');
+
+        traerArchivos(carpetaPadre);
+    };
+    useEffect(() => {
+    if (idRepo) {
+        traerInformacionRepositorio();
+        traerColaboradores();
+        traerCommits();
+    }
+}, [
+    idRepo,
+    traerInformacionRepositorio,
+    traerColaboradores,
+    traerCommits
+]);
+
+useEffect(() => {
+    if (commitSeleccionado) {
+        setCarpetaActual("");
+        traerArchivos("");
+    }
+}, [commitSeleccionado, traerArchivos]);
 
     return (
         <div className="repo-page">
@@ -99,17 +149,40 @@ const volverCarpeta = () => {
                     <span className="badge">{privado ? "Private" : "Public"}</span>
                 </div>
                 <div className="repo-actions">
-    <input type="text" placeholder="Go to file" />
-    <button onClick={() => navigate(`/repositorios/subir/${idRepo}`)}>Add file ▾</button>
-    <button className="btn-green">&lt;&gt; Code ▾</button>
-</div>
+                    <input type="text" placeholder="Go to file" />
+                    <button onClick={() => navigate(`/repositorios/subir/${idRepo}`)}>Add file ▾</button>
+                    <button className="btn-green">&lt;&gt; Code ▾</button>
+                </div>
             </div>
 
             {/* Main Container */}
             <div className="repo-container">
                 {/* Left Side: Files & Readme */}
                 <div className="repo-main">
-                    
+
+<div style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    marginBottom: "15px"
+}}>
+    <label>Versión del repositorio:</label>
+
+    <select
+        value={commitSeleccionado}
+        onChange={(e) => setCommitSeleccionado(e.target.value)}
+    >
+        {commits.map((commit) => (
+            <option
+                key={commit.id_commit}
+                value={commit.id_commit}
+            >
+                Commit #{commit.id_commit}
+            </option>
+        ))}
+    </select>
+</div>
+
                     {/* Caja de Archivos del Repositorio */}
                     <div className="box">
                         <div className="box-header purple">
@@ -119,111 +192,115 @@ const volverCarpeta = () => {
                             </div>
                             <div>{archivos.length} archivo(s)</div>
                         </div>
-                        
-<div className="box-body" style={{
-    padding: '16px',
-    background: '#000000'
-}}>
 
-    {/* Navegación */}
-    <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        marginBottom: '15px'
-    }}>
+                        <div className="box-body" style={{
+                            padding: '16px',
+                            background: '#000000'
+                        }}>
 
-        {carpetaActual !== '' && (
-            <button onClick={volverCarpeta}>
-                ← Volver
-            </button>
-        )}
+                            {/* Navegación */}
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                marginBottom: '15px'
+                            }}>
 
-        <span>
-            {carpetaActual || 'Repositorio'}
-        </span>
+                                {carpetaActual !== '' && (
+                                    <button onClick={volverCarpeta}>
+                                        ← Volver
+                                    </button>
+                                )}
 
-    </div>
+                                <span>
+                                    {carpetaActual || 'Repositorio'}
+                                </span>
 
-    {archivos.length === 0 ? (
+                            </div>
 
-        <p style={{ color: '#666', fontSize: '14px' }}>
-            Esta carpeta está vacía.
-        </p>
+                            {errorArchivos ? (
+                                <p role="alert" style={{ color: '#f85149', fontSize: '14px' }}>
+                                    {errorArchivos}
+                                </p>
+                            ) : archivos.length === 0 ? (
 
-    ) : (
+                                <p style={{ color: '#666', fontSize: '14px' }}>
+                                    Esta carpeta está vacía.
+                                </p>
 
-        <ul style={{
-            listStyle: 'none',
-            padding: 0,
-            margin: 0
-        }}>
+                            ) : (
 
-            {archivos.map((elemento) => (
+                                <ul style={{
+                                    listStyle: 'none',
+                                    padding: 0,
+                                    margin: 0
+                                }}>
 
-                <li
-                    key={
-                        elemento.tipo === 'carpeta'
-                            ? elemento.rutaParaNavegar
-                            : elemento.id_archivo
-                    }
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '10px 0',
-                        borderBottom: '1px solid #eaeaea',
-                        color : "white"
-                    }}
-                >
+                                    {archivos.map((elemento) => (
 
-                    {elemento.tipo === 'carpeta' ? (
+                                        <li
+                                            key={
+                                                elemento.tipo === 'carpeta'
+                                                    ? elemento.rutaParaNavegar
+                                                    : elemento.id_archivo
+                                            }
+                                            style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                padding: '10px 0',
+                                                borderBottom: '1px solid #eaeaea',
+                                                color: "white"
+                                            }}
+                                        >
 
-                        <span
-                            onClick={() => entrarCarpeta(
-                                elemento.rutaParaNavegar
+                                            {elemento.tipo === 'carpeta' ? (
+
+                                                <span
+                                                    onClick={() => entrarCarpeta(
+                                                        elemento.rutaParaNavegar
+                                                    )}
+                                                    style={{
+                                                        cursor: 'pointer',
+                                                        color: '#0969da',
+                                                        fontWeight: '500'
+                                                    }}
+                                                >
+                                                    📁 {elemento.nombre}
+                                                </span>
+
+                                            ) : (
+
+                                                <>
+                                                    <span>
+                                                        📄 {elemento.nombre}
+                                                    </span>
+
+                                                    <a
+                                                        href={elemento.urlCompleta}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        style={{
+                                                            color: '#0969da',
+                                                            textDecoration: 'none',
+                                                            fontWeight: '500'
+                                                        }}
+                                                    >
+                                                        Ver / Descargar
+                                                    </a>
+                                                </>
+
+                                            )}
+
+                                        </li>
+
+                                    ))}
+
+                                </ul>
+
                             )}
-                            style={{
-                                cursor: 'pointer',
-                                color: '#0969da',
-                                fontWeight: '500'
-                            }}
-                        >
-                            📁 {elemento.nombre}
-                        </span>
 
-                    ) : (
-
-                        <>
-                            <span>
-                                📄 {elemento.nombre}
-                            </span>
-
-                            <a
-                                href={elemento.urlCompleta}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{
-                                    color: '#0969da',
-                                    textDecoration: 'none',
-                                    fontWeight: '500'
-                                }}
-                            >
-                                Ver / Descargar
-                            </a>
-                        </>
-
-                    )}
-
-                </li>
-
-            ))}
-
-        </ul>
-
-    )}
-
-</div>
+                        </div>
 
                     </div>
 
@@ -246,7 +323,7 @@ const volverCarpeta = () => {
                         <p>{descripcion || 'No description, website, or topics provided.'}</p>
                         {fecha && <p>Creado el {new Date(fecha).toLocaleDateString()}</p>}
                     </div>
-                    
+
                     <div className="side-section">
                         <h3>Contributors</h3>
                         <div className="avatars" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>

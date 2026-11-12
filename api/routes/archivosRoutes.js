@@ -5,6 +5,11 @@ const { validarRepositorio } = require("../controllers/repositoriosControllers.j
 
 const router = Router();
 
-router.get('/repositorio/:id_repo/traerArchivos', isAuth, validarRepositorio, traerTodosLosArchivos)
+router.get(
+    "/repositorio/:idRepo/traerArchivos",
+    isAuth,
+    validarRepositorio,
+    traerTodosLosArchivos
+);
 
 module.exports = router

@@ -2,6 +2,7 @@ const multer = require("multer")
 const path = require("path")
 const crypto = require("crypto")
 const fs = require("fs")
+const { Commits } = require("../models");
 
 const storage = multer.diskStorage({
 
@@ -19,24 +20,60 @@ const storage = multer.diskStorage({
     }
 
 })
+const crearCommit = async (req, res, next) => {
+    try {
+        const idRepo = Number(req.params.id);
+        const idUsuario = req.user.id;
+
+     
+        const ultimoCommit = await Commits.findOne({
+            where: {
+                id_repo: idRepo
+            },
+            order: [["id_commit", "DESC"]]
+        });
+
+        
+        const nuevoCommit = await Commits.create({
+            id_repo: idRepo,
+            id_usuario: idUsuario,
+            id_commit_padre: ultimoCommit
+                ? ultimoCommit.id_commit
+                : null
+        });
+
+        req.commit = nuevoCommit;
+
+        next();
+
+    } catch (error) {
+        console.error("Error al crear commit:", error);
+
+        return res.status(500).json({
+            message: "No se pudo crear el commit."
+        });
+    }
+};
 
 const repositoryStorage = multer.diskStorage({
     destination: (req, file, cb) => {
         const destination = path.join(
             __dirname,
-            "../uploads/repos",
-            String(req.params.id)
+            "../uploads/tmp",
+            String(req.params.id),
+            String(req.commit.id_commit)
         );
-        fs.mkdir(
-            destination,
-            { recursive: true },
-            error => cb(error, destination)
-        );
+
+        fs.mkdir(destination, { recursive: true }, error => {
+            cb(error, destination);
+        });
     },
+
     filename: (req, file, cb) => {
         const nombre = path.basename(file.originalname)
             .replace(/[<>:"/\\|?*\x00-\x1f]/g, "_")
             .slice(0, 120) || "archivo";
+
         cb(null, `${crypto.randomUUID()}--${nombre}`);
     }
 });
@@ -51,8 +88,17 @@ const subirArchivos = multer({
 }).array("archivos", 500);
 
 const manejarUploadArchivo = (req, res, next) => {
-    subirArchivos(req, res, (error) => {
+    subirArchivos(req, res, async (error) => {
         if (!error) return next();
+
+        try {
+            await req.commit?.destroy();
+        } catch (cleanupError) {
+            console.error("Error al limpiar el commit fallido:", cleanupError);
+            return res.status(500).json({
+                message: "No se pudo completar ni limpiar la carga."
+            });
+        }
 
         if (!(error instanceof multer.MulterError)) {
             console.error("Error al subir archivo:", error);
@@ -128,9 +174,10 @@ const manejarUploadEntrega = (req, res, next) => {
     })
 }
 
-module.exports = { 
-    upload, 
-    manejarUploadArchivo, 
-    manejarUploadEntrega, 
-    DIRECTORIO_UPLOADS 
+module.exports = {
+    upload,
+    crearCommit,
+    manejarUploadArchivo,
+    manejarUploadEntrega,
+    DIRECTORIO_UPLOADS
 };
