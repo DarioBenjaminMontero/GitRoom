@@ -169,29 +169,46 @@ useEffect(() => {
     <label>Versión del repositorio:</label>
 
     <select
-        value={commitSeleccionado}
-        onChange={(e) => setCommitSeleccionado(e.target.value)}
-    >
-        {commits.map((commit) => (
-            <option
-                key={commit.id_commit}
-                value={commit.id_commit}
-            >
-                Commit #{commit.id_commit}
-            </option>
-        ))}
-    </select>
+    value={commitSeleccionado}
+    onChange={(e) => setCommitSeleccionado(e.target.value)}
+>
+    {commits.map((commit) => (
+        <option
+            key={commit.id_commit}
+            value={commit.id_commit}
+        >
+            Commit #{commit.id_commit} - 
+            {commit.usuario?.nombre || "Usuario desconocido"}{" "}
+            {commit.usuario?.apellido || ""}
+        </option>
+    ))}
+</select>
 </div>
 
                     {/* Caja de Archivos del Repositorio */}
                     <div className="box">
                         <div className="box-header purple">
-                            <div>
-                                <img src="https://via.placeholder.com/24" alt="User" />
-                                <strong>Archivos del Repositorio</strong>
-                            </div>
-                            <div>{archivos.length} archivo(s)</div>
-                        </div>
+    <div>
+        <img
+            src="https://via.placeholder.com/24"
+            alt="User"
+        />
+
+        <strong>Archivos del Repositorio</strong>
+
+        {commits.length > 0 && (
+            <span style={{ marginLeft: "12px", fontSize: "13px" }}>
+                El último commit fue realizado por:{" "}
+                <strong>
+                    {commits[0].usuario?.nombre}{" "}
+                    {commits[0].usuario?.apellido}
+                </strong>
+            </span>
+        )}
+    </div>
+
+    <div>{commits.length} commit(s)</div>
+</div>
 
                         <div className="box-body" style={{
                             padding: '16px',

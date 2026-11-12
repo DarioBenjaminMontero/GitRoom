@@ -1,5 +1,4 @@
-const { Commits } = require('../models/commitsModels')
-
+const { Commits, usuarios } = require("../models/index.js");
 
 const traerCommits = async (req, res) => {
     try {
@@ -9,6 +8,10 @@ const traerCommits = async (req, res) => {
             where: {
                 id_repo: idRepo
             },
+            include: [{
+                model: usuarios,
+                attributes: ["id_usuario", "nombre", "apellido"],
+            }],
             order: [["id_commit", "DESC"]]
         });
 
@@ -23,4 +26,4 @@ const traerCommits = async (req, res) => {
     }
 };
 
-module.exports = { traerCommits };module.exports = { traerCommits }
+module.exports = { traerCommits };
