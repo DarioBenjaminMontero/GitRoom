@@ -106,6 +106,50 @@ const create = async (req, res) => {
         });
     }
 }
+
+const actualizarImagenClase = async (req, res) => {
+    const idClase = Number(req.params.idClase);
+
+    if (!Number.isInteger(idClase) || idClase <= 0) {
+        return res.status(400).json({ message: "El id de la clase no es válido" });
+    }
+
+    if (!req.file) {
+        return res.status(400).json({ message: "Debes seleccionar una imagen" });
+    }
+
+    try {
+        const clase = await clases.findByPk(idClase);
+        if (!clase) {
+            return res.status(404).json({ message: "No se encontró la clase" });
+        }
+
+        const profesor = await clasesUsuarios.findOne({
+            where: {
+                id_clase: idClase,
+                id_usuario: req.user.id,
+                esProfesor: true
+            }
+        });
+
+        if (!profesor) {
+            return res.status(403).json({ message: "Solo el profesor puede cambiar la foto de la clase" });
+        }
+
+        const nombreArchivo = req.file.originalname;
+        const rutaPublica = `/uploads/anuncios/${req.file.filename}`;
+        await clase.update({ imagen: rutaPublica });
+
+        return res.status(200).json({
+            message: "Foto de la clase actualizada",
+            imagen: rutaPublica,
+            nombreArchivo
+        });
+    } catch (error) {
+        return res.status(500).json({ message: "Error al actualizar la foto de la clase", detalles: error.message });
+    }
+};
+
 const buscarimagen=async(req,res)=>{
     const id_clase=req.params.idclase
     try{
@@ -185,4 +229,4 @@ const unirseClase = async (req, res) =>{
     }
 }
 
-module.exports = { create, unirseClase,buscarimagen };
+module.exports = { create, unirseClase,buscarimagen, actualizarImagenClase };

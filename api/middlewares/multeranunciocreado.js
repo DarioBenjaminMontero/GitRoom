@@ -38,7 +38,12 @@ const anuncioTempStorage = multer.diskStorage({
 const uploadAnuncioConArchivo = multer({ 
     storage: anuncioTempStorage,
     limits: { fileSize: 25 * 1024 * 1024 } // Opcional: límite de 25MB
-}).single('archivo'); // Debe coincidir con formData.append('archivo', archivos) del frontend
+}).array('archivos', 10);
+
+const uploadImagenClase = multer({
+    storage: anuncioTempStorage,
+    limits: { fileSize: 5 * 1024 * 1024 }
+}).single('imagen');
 
 const manejarUploadAnuncio = (req, res, next) => {
     uploadAnuncioConArchivo(req, res, (error) => {
@@ -46,6 +51,17 @@ const manejarUploadAnuncio = (req, res, next) => {
         if (!(error instanceof multer.MulterError)) {
             console.error("Error al subir archivo:", error);
             return res.status(500).json({ message: "No se pudo subir el archivo." });
+        }
+        return res.status(error.code === "LIMIT_FILE_SIZE" ? 413 : 400).json({ message: error.message });
+    });
+};
+
+const manejarUploadImagen = (req, res, next) => {
+    uploadImagenClase(req, res, (error) => {
+        if (!error) return next();
+        if (!(error instanceof multer.MulterError)) {
+            console.error("Error al subir la imagen de la clase:", error);
+            return res.status(500).json({ message: "No se pudo subir la imagen de la clase." });
         }
         return res.status(error.code === "LIMIT_FILE_SIZE" ? 413 : 400).json({ message: error.message });
     });
@@ -74,5 +90,7 @@ const manejarUploadArchivo = (req, res, next) => {
 module.exports = { 
     uploadanuncio, 
     manejarUploadArchivo, 
-    manejarUploadAnuncio 
+    manejarUploadAnuncio,
+    manejarUploadImagen,
+    uploadImagenClase
 }

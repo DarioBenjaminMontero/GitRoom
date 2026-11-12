@@ -1,13 +1,14 @@
 const { Router } = require("express");
-const {  create,unirseClase,buscarimagen } = require("../controllers/clasesController.js");
+const {  create,unirseClase,buscarimagen, actualizarImagenClase } = require("../controllers/clasesController.js");
 const { create: createAnuncio, createComment, obtenerAnuncio, obtenerComentarios,obtenerTareasPendientes } = require("../controllers/anunciosControllers.js");
 const { validarEntrega, guardarEntrega, obtenerMiEntrega, descargarArchivoEntrega, obtenerEntregasDelAnuncio, calificarEntrega } = require("../controllers/entregasController.js");
 const { manejarUploadEntrega } = require("../middlewares/multer.js");
 const {isAuth} = require("../middlewares/auth.js")
-const{manejarUploadAnuncio}=require("../middlewares/multeranunciocreado.js")
+const{manejarUploadAnuncio, manejarUploadImagen}=require("../middlewares/multeranunciocreado.js")
 const {authJoinClass} = require("../middlewares/authJoinClass.js")
 const router = Router();
 router.post('/anun/:idclase',isAuth,buscarimagen);
+router.put('/:idClase/imagen', isAuth, manejarUploadImagen, actualizarImagenClase);
 router.post('/crear', isAuth,create);
 router.post('/unirse',authJoinClass, unirseClase);
 router.get('/tareas-pendientes', isAuth, obtenerTareasPendientes);

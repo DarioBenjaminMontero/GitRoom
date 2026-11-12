@@ -54,13 +54,16 @@ const create = async (req, res) => {
                 `anuncio-${nuevoAnuncio.id_anuncio}`
             );
             await fs.mkdir(directorioAnuncio, { recursive: true });
-            if (req.file) {
-                const rutaDestinoFinal = path.join(directorioAnuncio, req.file.originalname);
-                await fs.rename(req.file.path, rutaDestinoFinal);
+
+            const archivosSubidos = Array.isArray(req.files) ? req.files : req.file ? [req.file] : [];
+
+            for (const archivo of archivosSubidos) {
+                const rutaDestinoFinal = path.join(directorioAnuncio, archivo.originalname);
+                await fs.rename(archivo.path, rutaDestinoFinal);
                 await ArchivosAnuncio.create({
                     id_anuncio: nuevoAnuncio.id_anuncio,
-                    tipo: nuevoAnuncio.tipo, 
-                    url_archivo: `/uploads/anuncios/anuncio-${nuevoAnuncio.id_anuncio}/${req.file.originalname}`
+                    tipo: nuevoAnuncio.tipo,
+                    url_archivo: `/uploads/anuncios/anuncio-${nuevoAnuncio.id_anuncio}/${archivo.originalname}`
                 }, { transaction });
             }
 

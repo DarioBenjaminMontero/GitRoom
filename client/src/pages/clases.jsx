@@ -8,8 +8,9 @@ export default function Obteneranuncios({ refreshTrigger }) {
     const idClase = localStorage.getItem('idclase');
     const [anucios, setanuncio] = useState([]);
     const [imagen, setimagen] = useState("");
+    const imagenClaseUrl = imagen ? (imagen.startsWith('http') ? imagen : `http://localhost:3000${imagen}`) : "";
     const [esProfesor, setEsProfesor] = useState(false);
-    const [archivos,setArchivo]=useState(null)
+    const [archivos,setArchivos]=useState([])
     // Estados para el modal de Crear Anuncio
     const [modalCrearAbierto, setModalCrearAbierto] = useState(false);
     const [nombre,setnombre]=useState("")
@@ -69,8 +70,10 @@ export default function Obteneranuncios({ refreshTrigger }) {
         formData.append('contenido', contenido);
         formData.append('nombre', nombre);
         
-        if (archivos) {
-            formData.append('archivo', archivos);
+        if (archivos.length > 0) {
+            archivos.forEach((archivo) => {
+                formData.append('archivos', archivo);
+            });
         }
 
         await axios.post(`http://localhost:3000/clases/${idClase}/anuncios`, formData, {
@@ -83,13 +86,34 @@ export default function Obteneranuncios({ refreshTrigger }) {
         setContenido('');
         setnombre('');
         setTipo('anuncio');
-        setArchivo(null);
+        setArchivos([]);
         await fecthanunaios();
     } catch (error) {
         console.error("Error al crear el anuncio:", error.response?.data || error.message);
         alert("Hubo un error al crear el anuncio.");
     }
 };
+
+    const handleCambiarFotoClase = async (e) => {
+        const archivo = e.target.files?.[0];
+        if (!archivo || !idClase) return;
+
+        const formData = new FormData();
+        formData.append('imagen', archivo);
+
+        try {
+            await axios.put(`http://localhost:3000/clases/${idClase}/imagen`, formData, {
+                headers: { authorization: token }
+            });
+            alert('La foto de la clase se actualizó correctamente');
+            await fetchImgClase();
+        } catch (error) {
+            console.error('Error al actualizar la foto de la clase', error.response?.data || error.message);
+            alert('No se pudo actualizar la foto de la clase.');
+        } finally {
+            e.target.value = '';
+        }
+    };
 
     const fetchImgClase = async () => {
         try {
@@ -132,9 +156,18 @@ export default function Obteneranuncios({ refreshTrigger }) {
 
     return (
         <div className="anuncios-container">
-            {imagen && (
+            {imagenClaseUrl && (
                 <div className="clase-banner">
-                    <img src={imagen} alt="Banner de la clase" style={{ width: "100%", maxHeight: "200px", objectFit: "cover", borderRadius: "8px" }} />
+                    <img src={imagenClaseUrl} alt="Banner de la clase" style={{ width: "100%", maxHeight: "200px", objectFit: "cover", borderRadius: "8px" }} />
+                </div>
+            )}
+
+            {esProfesor && (
+                <div style={{ marginBottom: "12px" }}>
+                    <label style={{ display: "inline-block", cursor: "pointer", background: "#3b82f6", color: "#fff", padding: "8px 14px", borderRadius: "8px", fontWeight: 600 }}>
+                        Cambiar foto de la clase
+                        <input type="file" accept="image/*" hidden onChange={handleCambiarFotoClase} />
+                    </label>
                 </div>
             )}
             
@@ -205,9 +238,19 @@ export default function Obteneranuncios({ refreshTrigger }) {
                             />
                         </div>
                         <div>
-                            <form>
-                                <input type="file" onChange={(e)=>setArchivo(e.target.files[0])}/>
-                            </form>
+                            <label style={{ fontWeight: "bold", display: "block", marginBottom: "4px" }}>Archivos adjuntos</label>
+                            <input
+                                type="file"
+                                multiple
+                                onChange={(e) => setArchivos(Array.from(e.target.files || []))}
+                            />
+                            {archivos.length > 0 && (
+                                <ul style={{ marginTop: "8px", paddingLeft: "18px" }}>
+                                    {archivos.map((archivo, index) => (
+                                        <li key={`${archivo.name}-${index}`}>{archivo.name}</li>
+                                    ))}
+                                </ul>
+                            )}
                         </div>
 
                         <div className="modal-botones">
