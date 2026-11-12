@@ -1,38 +1,109 @@
-const { clases } = require("../models/index.js")
-const { clasesUsuarios } = require("../models/index.js")
+const {
+    clases,
+    clasesUsuarios,
+    repositorios,
+    UsuariosRepositorios
+} = require("../models/index.js");
+const { sequelize } = require("../config/db.js");
 
-const create = async (req, res) => {
-    const { nombreClase } = req.body;
-    const idUsuario = req.user.id
-    let existe = true;
-    let codigo;
+const sincronizarRepositorioClase = async (clase, transaction) => {
+    let repositorioClase = await repositorios.findOne({
+        where: { id_clase: clase.id_clase },
+        transaction
+    });
 
-    try {
-        do {
-            const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            codigo = '';
+    if (!repositorioClase) {
+        repositorioClase = await repositorios.create({
+            nombre_repo: `${clase.nombreClase} (clase)`,
+            descripcion: `Repositorio compartido de la clase ${clase.nombreClase}`,
+            es_privado: true,
+            id_clase: clase.id_clase
+        }, { transaction });
+    }
 
-            for (let i = 0; i < 6; i++) {
-                const aleatorio = Math.floor(Math.random() * caracteres.length);
-                codigo += caracteres.charAt(aleatorio);
-            }
+    const miembros = await clasesUsuarios.findAll({
+        where: { id_clase: clase.id_clase },
+        transaction
+    });
 
-            const claseExistente = await clases.findOne({ where: { codigo } });
-            if (!claseExistente){
-                existe = false
-            }
-        } while (existe == true);
-
-        const nuevaClase = await clases.create({ nombreClase, codigo });
-        await clasesUsuarios.create({
-            id_clase: nuevaClase.id_clase,
-            id_usuario: idUsuario,
-            esProfesor: true
+    for (const miembro of miembros) {
+        const [relacion, creada] = await UsuariosRepositorios.findOrCreate({
+            where: {
+                id_usuario: miembro.id_usuario,
+                id_repo: repositorioClase.id_repo
+            },
+            defaults: {
+                rol_Colaborador: miembro.esProfesor
+            },
+            transaction
         });
 
-        return res.status(201).json({ message: "Clase creada", clase: nuevaClase });
+        if (!creada && relacion.rol_Colaborador !== miembro.esProfesor) {
+            await relacion.update({
+                rol_Colaborador: miembro.esProfesor
+            }, { transaction });
+        }
+    }
+
+    return repositorioClase;
+};
+
+const create = async (req, res) => {
+    const nombreClase = typeof req.body.nombreClase === "string"
+        ? req.body.nombreClase.trim()
+        : "";
+
+    try {
+        if (!nombreClase) {
+            return res.status(400).json({
+                message: "El nombre de la clase es obligatorio"
+            });
+        }
+
+        const resultado = await sequelize.transaction(async (transaction) => {
+            let codigo;
+            let codigoDisponible = false;
+
+            while (!codigoDisponible) {
+                const caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                codigo = Array.from({ length: 6 }, () =>
+                    caracteres.charAt(Math.floor(Math.random() * caracteres.length))
+                ).join("");
+
+                const claseExistente = await clases.findOne({
+                    where: { codigo },
+                    transaction
+                });
+                codigoDisponible = !claseExistente;
+            }
+
+            const nuevaClase = await clases.create(
+                { nombreClase, codigo },
+                { transaction }
+            );
+            await clasesUsuarios.create({
+                id_clase: nuevaClase.id_clase,
+                id_usuario: req.user.id,
+                esProfesor: true
+            }, { transaction });
+
+            const repositorioClase = await sincronizarRepositorioClase(
+                nuevaClase,
+                transaction
+            );
+
+            return { clase: nuevaClase, repositorio: repositorioClase };
+        });
+
+        return res.status(201).json({
+            message: "Clase y repositorio compartido creados",
+            ...resultado
+        });
     } catch (error) {
-        return res.status(500).json({ error: "Error en el servidor", detalles: error.message });
+        console.error("Error al crear la clase y su repositorio:", error);
+        return res.status(500).json({
+            message: "No se pudo crear la clase y su repositorio"
+        });
     }
 }
 const buscarimagen=async(req,res)=>{
@@ -47,29 +118,71 @@ const buscarimagen=async(req,res)=>{
     
 }
 const unirseClase = async (req, res) =>{
+    const codigo = typeof req.user.codigo === "string"
+        ? req.user.codigo.trim()
+        : "";
 
-try {
-const codigo = req.user.codigo
-  const claseExistente = await clases.findOne({ where: { codigo } });
-  if(!claseExistente){
-    return res.status(404).json({message:"no se encontro una clase con ese codigo"})
-  }
-  else{
-    const userId = req.user.id
-   
-    await clasesUsuarios.create({
-            id_clase: claseExistente.id_clase,
-            id_usuario: userId,
-            esProfesor: false
+    try {
+        if (!codigo) {
+            return res.status(400).json({
+                message: "El código de la clase es obligatorio"
+            });
+        }
+
+        const resultado = await sequelize.transaction(async (transaction) => {
+            const claseExistente = await clases.findOne({
+                where: { codigo },
+                transaction
+            });
+
+            if (!claseExistente) return null;
+
+            const [, creada] = await clasesUsuarios.findOrCreate({
+                where: {
+                    id_clase: claseExistente.id_clase,
+                    id_usuario: req.user.id
+                },
+                defaults: {
+                    esProfesor: false
+                },
+                transaction
+            });
+
+            const repositorioClase = await sincronizarRepositorioClase(
+                claseExistente,
+                transaction
+            );
+
+            return {
+                clase: claseExistente,
+                repositorio: repositorioClase,
+                yaEraMiembro: !creada
+            };
         });
-        return res.status(201).json({ message: "Te uniste con exito a la clase", clase: claseExistente.nombreClase });
-  }
 
-}
-catch (error) {
-    return res.status(500).json({ error: "Error en el servidor", detalles: error.message });
-}
+        if (!resultado) {
+            return res.status(404).json({
+                message: "No se encontró una clase con ese código"
+            });
+        }
 
+        return res.status(resultado.yaEraMiembro ? 200 : 201).json({
+            message: resultado.yaEraMiembro
+                ? "Ya pertenecías a esta clase"
+                : "Te uniste con éxito a la clase",
+            clase: resultado.clase.nombreClase,
+            id_clase: resultado.clase.id_clase,
+            repositorio: {
+                id_repo: resultado.repositorio.id_repo,
+                nombre_repo: resultado.repositorio.nombre_repo
+            }
+        });
+    } catch (error) {
+        console.error("Error al unirse a la clase y su repositorio:", error);
+        return res.status(500).json({
+            message: "No se pudo completar la inscripción a la clase"
+        });
+    }
 }
 
 module.exports = { create, unirseClase,buscarimagen };

@@ -153,18 +153,35 @@ const traerColaboradores = async (req, res) => {
         const repoConColaboradores = await repositorios.findByPk(req.params.id, {
             include: {
                 model: usuarios,
-                attributes: ['id_usuario', 'nombre', 'mail', 'apellido', 'foto_perfil']
+                attributes: [
+                    'id_usuario',
+                    'nombre',
+                    'mail',
+                    'apellido',
+                    'foto_perfil'
+                ],
+                through: {
+                    attributes: ['rol_Colaborador']
+                }
             }
         });
+
         if (!repoConColaboradores) {
-            return res.status(404).json({ message: "Repositorio no encontrado" });
+            return res.status(404).json({
+                message: "Repositorio no encontrado"
+            });
         }
+
         return res.status(200).json(repoConColaboradores.usuarios);
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            error: "Error en el servidor",
+            details: error.message
+        });
     }
-    catch (error) {
-        return res.status(500).json({ error: "Error en el servidor", details: error.message });
-    }
-}
+};
 
 const obtenerArchivosRecursivos = async (directorio) => {
     const elementos = await fs.readdir(directorio, {

@@ -16,7 +16,7 @@ export default function Repositorio() {
     const [commits, setCommits] = useState([]);
     const [commitSeleccionado, setCommitSeleccionado] = useState("");
     const [errorArchivos, setErrorArchivos] = useState("");
-
+    const [creador, setCreador] = useState(null);
     const traerInformacionRepositorio = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
@@ -62,13 +62,31 @@ export default function Repositorio() {
     const traerColaboradores = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
-            const respuesta = await axios.get(`http://localhost:3000/repositorios/conseguirColaboradores/${idRepo}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
 
-            setColaboradores(respuesta.data || []);
+            const respuesta = await axios.get(
+                `http://localhost:3000/repositorios/conseguirColaboradores/${idRepo}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            const usuarios = respuesta.data || [];
+
+            setColaboradores(usuarios);
+
+            const usuarioCreador = usuarios.find(
+                (user) => user.UsuariosRepositorios?.rol_Colaborador === true
+            );
+
+            setCreador(usuarioCreador || null);
+
         } catch (error) {
-            console.error("Error al traer colaboradores:", error.response?.data || error.message);
+            console.error(
+                "Error al traer colaboradores:",
+                error.response?.data || error.message
+            );
         }
     }, [idRepo]);
 
@@ -120,33 +138,50 @@ export default function Repositorio() {
         traerArchivos(carpetaPadre);
     };
     useEffect(() => {
-    if (idRepo) {
-        traerInformacionRepositorio();
-        traerColaboradores();
-        traerCommits();
-    }
-}, [
-    idRepo,
-    traerInformacionRepositorio,
-    traerColaboradores,
-    traerCommits
-]);
+        if (idRepo) {
+            traerInformacionRepositorio();
+            traerColaboradores();
+            traerCommits();
+        }
+    }, [
+        idRepo,
+        traerInformacionRepositorio,
+        traerColaboradores,
+        traerCommits
+    ]);
 
-useEffect(() => {
-    if (commitSeleccionado) {
-        setCarpetaActual("");
-        traerArchivos("");
-    }
-}, [commitSeleccionado, traerArchivos]);
+    useEffect(() => {
+        if (commitSeleccionado) {
+            setCarpetaActual("");
+            traerArchivos("");
+        }
+    }, [commitSeleccionado, traerArchivos]);
 
     return (
         <div className="repo-page">
             {/* Top Header */}
             <div className="repo-header">
                 <div className="repo-title">
-                    <img src="https://via.placeholder.com/32" alt="Avatar" />
+                    <img
+                        src={
+                            creador?.foto_perfil
+                                ? `http://localhost:3000/uploads/${creador.foto_perfil}`
+                                : "https://via.placeholder.com/32"
+                        }
+                        alt="Foto del creador"
+                        style={{
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            objectFit: "cover"
+                        }}
+                    />
+
                     <span>{nombreRepo || 'Cargando...'}</span>
-                    <span className="badge">{privado ? "Private" : "Public"}</span>
+
+                    <span className="badge">
+                        {privado ? "Private" : "Public"}
+                    </span>
                 </div>
                 <div className="repo-actions">
                     <input type="text" placeholder="Go to file" />
@@ -160,48 +195,62 @@ useEffect(() => {
                 {/* Left Side: Files & Readme */}
                 <div className="repo-main">
 
-<div style={{
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    marginBottom: "15px"
-}}>
-    <label>Versión del repositorio:</label>
+                    <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                        marginBottom: "15px"
+                    }}>
+                        <label>Versión del repositorio:</label>
 
-    <select
-    value={commitSeleccionado}
-    onChange={(e) => setCommitSeleccionado(e.target.value)}
->
-    {commits.map((commit) => (
-        <option
-            key={commit.id_commit}
-            value={commit.id_commit}
-        >
-            Commit #{commit.id_commit} - 
-            {commit.usuario?.nombre || "Usuario desconocido"}{" "}
-            {commit.usuario?.apellido || ""}
-        </option>
-    ))}
-</select>
-</div>
+                        <select
+                            value={commitSeleccionado}
+                            onChange={(e) => setCommitSeleccionado(e.target.value)}
+                        >
+                            {commits.map((commit) => (
+                                <option
+                                    key={commit.id_commit}
+                                    value={commit.id_commit}
+                                >
+                                    Commit #{commit.id_commit} -
+                                    {commit.usuario?.nombre || "Usuario desconocido"}{" "}
+                                    {commit.usuario?.apellido || ""}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
 
                     {/* Caja de Archivos del Repositorio */}
                     <div className="box">
                         <div className="box-header purple">
-    <div>
+    <div style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "10px"
+    }}>
         <img
-            src="https://via.placeholder.com/24"
-            alt="User"
+            src={
+                commits[0]?.usuario?.foto_perfil
+                    ? `http://localhost:3000/uploads/${commits[0].usuario.foto_perfil}`
+                    : "https://via.placeholder.com/24"
+            }
+            alt="Foto del autor del último commit"
+            style={{
+                width: "28px",
+                height: "28px",
+                borderRadius: "50%",
+                objectFit: "cover"
+            }}
         />
 
         <strong>Archivos del Repositorio</strong>
 
         {commits.length > 0 && (
-            <span style={{ marginLeft: "12px", fontSize: "13px" }}>
+            <span style={{ marginLeft: "5px", fontSize: "13px" }}>
                 El último commit fue realizado por:{" "}
                 <strong>
-                    {commits[0].usuario?.nombre}{" "}
-                    {commits[0].usuario?.apellido}
+                    {commits[0].usuario?.nombre || "Usuario desconocido"}{" "}
+                    {commits[0].usuario?.apellido || ""}
                 </strong>
             </span>
         )}

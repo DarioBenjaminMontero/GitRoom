@@ -86,11 +86,13 @@ export default function Header({ onClaseCreada }) {
   const handleUnirseClase = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:3000/clases/unirse", { codigo: codigoClase }, {
+      const respuesta = await axios.post("http://localhost:3000/clases/unirse", { codigo: codigoClase }, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      alert(`Uniéndose con el código: ${codigoClase}`);
+      alert(
+        `${respuesta.data.message}. El repositorio compartido "${respuesta.data.repositorio.nombre_repo}" ya está disponible en tus repositorios.`
+      );
       setModalUnirseAbierto(false);
       setCodigoClase('');
       await obtenerClasesHeader();
@@ -100,17 +102,20 @@ export default function Header({ onClaseCreada }) {
       }
     } catch (error) {
       console.error("Error al unirse a la clase:", error);
+      alert(error.response?.data?.message || "No se pudo completar la inscripción a la clase.");
     }
   };
 
   const handleCrearClase = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     try {
-      await axios.post("http://localhost:3000/clases/crear", { nombreClase: nombreClase }, {
+      const respuesta = await axios.post("http://localhost:3000/clases/crear", { nombreClase: nombreClase }, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      alert(`Clase creada con éxito: ${nombreClase}`);
+      alert(
+        `Clase creada con éxito: ${nombreClase}. También se creó el repositorio compartido "${respuesta.data.repositorio.nombre_repo}".`
+      );
       setModalCrearAbierto(false);
       setNombreClase('');
       await obtenerClasesHeader();

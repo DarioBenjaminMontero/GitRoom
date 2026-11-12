@@ -10,7 +10,7 @@ const traerCommits = async (req, res) => {
             },
             include: [{
                 model: usuarios,
-                attributes: ["id_usuario", "nombre", "apellido"],
+                attributes: ["id_usuario", "nombre", "apellido", "foto_perfil"],
             }],
             order: [["id_commit", "DESC"]]
         });
