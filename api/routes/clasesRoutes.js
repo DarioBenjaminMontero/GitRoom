@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const {  create,unirseClase,buscarimagen } = require("../controllers/clasesController.js");
 const { create: createAnuncio, createComment, obtenerAnuncio, obtenerComentarios,obtenerTareasPendientes } = require("../controllers/anunciosControllers.js");
-const { validarEntrega, guardarEntrega, obtenerMiEntrega, descargarArchivoEntrega } = require("../controllers/entregasController.js");
+const { validarEntrega, guardarEntrega, obtenerMiEntrega, descargarArchivoEntrega, obtenerEntregasDelAnuncio, calificarEntrega } = require("../controllers/entregasController.js");
 const { manejarUploadEntrega } = require("../middlewares/multer.js");
 const {isAuth} = require("../middlewares/auth.js")
 const{manejarUploadAnuncio}=require("../middlewares/multeranunciocreado.js")
@@ -17,6 +17,8 @@ router.get('/anuncios/:idAnuncio/comentarios', isAuth, obtenerComentarios); // L
 router.post('/anuncios/:idAnuncio/entregas', isAuth, validarEntrega, manejarUploadEntrega, guardarEntrega); // Entregar o reemplazar entrega
 router.get('/anuncios/:idAnuncio/entregas/mia', isAuth, obtenerMiEntrega); // Ver mi entrega
 router.get('/entregas/archivos/:idArchivo', isAuth, descargarArchivoEntrega); // Descargar archivo de entrega
+router.get('/anuncios/:idAnuncio/entregas', isAuth, obtenerEntregasDelAnuncio);
+router.put('/entregas/:idEntrega/calificacion', isAuth, calificarEntrega);
 router.post('/anuncio/:idclase',isAuth,obtenerAnuncio)
 router.post('/anunci/:idAnuncio',isAuth,obtenerAnuncio) // Ver una publicación
 module.exports = router;

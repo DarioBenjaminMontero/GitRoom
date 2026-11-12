@@ -5,12 +5,43 @@ import "./clases.css";
 // Tipos de publicación que piden subir archivos.
 const tiposConEntrega = new Set(["tarea", "prueba", "cuestonario"]);
 
+const vistaPrevia = (archivo) => {
+    const url = `http://localhost:3000${archivo.url_archivo}`;
+    const extension = archivo.url_archivo.split(".").pop().toLowerCase();
+    const estilo = { display: "block", width: "240px", height: "160px", borderRadius: "8px", border: "none", objectFit: "cover", background: "#fff" };
+
+    if (["mp4", "webm", "ogg"].includes(extension)) {
+        return <video src={url} controls style={estilo} />;
+    }
+    if (["mp3", "wav"].includes(extension)) {
+        return <audio src={url} controls style={{ width: "240px" }} />;
+    }
+
+    let miniatura = null;
+    if (["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp"].includes(extension)) {
+        miniatura = <img src={url} alt="" style={estilo} />;
+    }
+    if (["pdf", "txt"].includes(extension)) {
+        miniatura = <iframe src={url} title={archivo.url_archivo} style={{ ...estilo, pointerEvents: "none" }} />;
+    }
+    if (!miniatura) {
+        return null;
+    }
+
+    return (
+        <a href={url} target="_blank" rel="noreferrer" style={{ display: "inline-block" }}>
+            {miniatura}
+        </a>
+    );
+};
+
 export default function InfoAnuncio({ refreshTrigger }) {
     const token = localStorage.getItem('token');
     const idAnuncio = localStorage.getItem('idanuncio');
     
     const [anuncio, setAnuncio] = useState(null);
     const [esProfesor, setEsProfesor] = useState(false);
+    const [archivosAnuncio, setArchivosAnuncio] = useState([]);
     const [archivos, setArchivos] = useState([]);
     const [comentarios, setComentarios] = useState([]);
     const [textoComentario, setTextoComentario] = useState("");
@@ -18,6 +49,43 @@ export default function InfoAnuncio({ refreshTrigger }) {
     const [miEntrega, setMiEntrega] = useState(null);
     const [subiendoEntrega, setSubiendoEntrega] = useState(false);
     const [errorEntrega, setErrorEntrega] = useState("");
+    const [entregasAlumnos, setEntregasAlumnos] = useState([]);
+    const [notas, setNotas] = useState({});
+    const [errorCalificar, setErrorCalificar] = useState("");
+
+    const fetchEntregasAlumnos = async () => {
+        try {
+            const response = await axios.get(`http://localhost:3000/clases/anuncios/${idAnuncio}/entregas`, {
+                headers: { authorization: token }
+            });
+            setEntregasAlumnos(response.data.entregas);
+        } catch (error) {
+            console.error('Error al buscar las entregas', error.response?.data || error.message);
+            setErrorCalificar(error.response?.data?.message || "No se pudieron cargar las entregas.");
+        }
+    };
+
+    const calificar = async (entrega) => {
+        const nota = Number(String(notas[entrega.id_entrega] ?? "").replace(",", "."));
+        if (!(nota >= 1 && nota <= 10)) {
+            setErrorCalificar("La nota tiene que ser un número entre 1 y 10.");
+            return;
+        }
+
+        setErrorCalificar("");
+        try {
+            await axios.put(`http://localhost:3000/clases/entregas/${entrega.id_entrega}/calificacion`, {
+                calificacion: nota
+            }, {
+                headers: { authorization: token }
+            });
+            setNotas((actuales) => ({ ...actuales, [entrega.id_entrega]: undefined }));
+            await fetchEntregasAlumnos();
+        } catch (error) {
+            console.error('Error al calificar', error.response?.data || error.message);
+            setErrorCalificar(error.response?.data?.message || "No se pudo guardar la nota.");
+        }
+    };
 
     const fetchMiEntrega = async () => {
         try {
@@ -131,6 +199,10 @@ export default function InfoAnuncio({ refreshTrigger }) {
             if (response.data && response.data.anuncio) {
                 setAnuncio(response.data.anuncio);
                 setEsProfesor(response.data.esProfesor === true);
+                setArchivosAnuncio(response.data.archivos || []);
+                if (response.data.esProfesor && tiposConEntrega.has(response.data.anuncio.tipo)) {
+                    fetchEntregasAlumnos();
+                }
             } else {
                 setAnuncio(null); 
             }
@@ -161,6 +233,24 @@ export default function InfoAnuncio({ refreshTrigger }) {
                         <div className="anuncio-body-texto">
                             <p>{anuncio.contenido}</p>
                         </div>
+
+                        {archivosAnuncio.length > 0 && (
+                            <ul className="entrega-lista">
+                                {archivosAnuncio.map((archivo) => (
+                                    <li key={archivo.url_archivo} style={{ display: "block" }}>
+                                        {vistaPrevia(archivo) || (
+                                            <a
+                                                href={`http://localhost:3000${archivo.url_archivo}`}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                            >
+                                                {archivo.url_archivo.split("/").pop()}
+                                            </a>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
 
                         <hr className="anuncio-divider" />
 
@@ -269,6 +359,77 @@ export default function InfoAnuncio({ refreshTrigger }) {
                                 </>
                             )}
 
+                            {errorEntrega && <p className="entrega-error" role="alert">{errorEntrega}</p>}
+                        </aside>
+                    )}
+
+                    {esProfesor && tiposConEntrega.has(anuncio.tipo) && (
+                        <aside className="entrega-cuadro">
+                            <h3>Entregas de los alumnos</h3>
+
+                            {entregasAlumnos.length === 0 && (
+                                <p className="entrega-estado">Todavía no hay entregas.</p>
+                            )}
+
+                            {entregasAlumnos.map((entrega) => (
+                                <div key={entrega.id_entrega} className="entrega-actual">
+                                    <p style={{ margin: "0 0 4px 0", color: "#ffffff" }}>
+                                        {entrega.usuario.nombre} {entrega.usuario.apellido}
+                                    </p>
+                                    <p className="entrega-estado">
+                                        Entregado el {new Date(entrega.fecha_entrega).toLocaleDateString()}
+                                    </p>
+                                    {entrega.calificacion !== null && (
+                                        <p className="entrega-estado">Calificación: {String(entrega.calificacion).replace(".", ",")}</p>
+                                    )}
+
+                                    <ul className="entrega-lista">
+                                        {entrega.archivos.map((archivo) => (
+                                            <li key={archivo.id_archivo_entrega}>
+                                                <button
+                                                    type="button"
+                                                    className="entrega-descarga"
+                                                    onClick={() => descargarArchivo(archivo)}
+                                                >
+                                                    {archivo.nombre_original}
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+
+                                    <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
+                                        <input
+                                            type="text"
+                                            inputMode="decimal"
+                                            placeholder="Nota (1 a 10)"
+                                            aria-label={`Nota de ${entrega.usuario.nombre} ${entrega.usuario.apellido}`}
+                                            value={notas[entrega.id_entrega] ?? ""}
+                                            onChange={(e) => setNotas((actuales) => ({ ...actuales, [entrega.id_entrega]: e.target.value }))}
+                                            style={{
+                                                flex: 1,
+                                                minWidth: 0,
+                                                padding: "8px 10px",
+                                                background: "rgba(20, 20, 45, 0.9)",
+                                                border: "1px solid rgba(100, 100, 180, 0.6)",
+                                                borderRadius: "8px",
+                                                color: "#ffffff",
+                                                fontSize: "14px"
+                                            }}
+                                        />
+                                        <button
+                                            type="button"
+                                            className="entrega-enviar"
+                                            style={{ width: "auto", marginTop: 0 }}
+                                            disabled={!notas[entrega.id_entrega]}
+                                            onClick={() => calificar(entrega)}
+                                        >
+                                            {entrega.calificacion !== null ? "Cambiar" : "Calificar"}
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {errorCalificar && <p className="entrega-error" role="alert">{errorCalificar}</p>}
                             {errorEntrega && <p className="entrega-error" role="alert">{errorEntrega}</p>}
                         </aside>
                     )}

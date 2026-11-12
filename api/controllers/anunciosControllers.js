@@ -93,7 +93,8 @@ const obtenerAnuncio=async(req,res)=>{
          const profesor = anuncio && await clasesUsuarios.findOne({
              where: { id_clase: anuncio.id_clase, id_usuario: req.user.id, esProfesor: true }
          });
-    return res.status(201).json({ message: 'exito al buscar el anunacio', anuncio, esProfesor: Boolean(profesor) });
+         const archivos = await ArchivosAnuncio.findAll({ where: { id_anuncio } });
+    return res.status(201).json({ message: 'exito al buscar el anunacio', anuncio, esProfesor: Boolean(profesor), archivos });
     }
     catch(error){
         return res.status(500).json({ message: 'Error al buscar el anuncio', detalles: error.message });

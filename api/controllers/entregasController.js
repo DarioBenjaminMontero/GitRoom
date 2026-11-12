@@ -1,6 +1,6 @@
 const fs = require('fs/promises');
 const path = require('path');
-const { Anuncios, clasesUsuarios, Entregas, ArchivosEntrega } = require('../models/index.js');
+const { Anuncios, clasesUsuarios, Entregas, ArchivosEntrega, usuarios } = require('../models/index.js');
 const { sequelize } = require('../config/db.js');
 const { DIRECTORIO_UPLOADS } = require('../middlewares/multer.js');
 
@@ -185,4 +185,74 @@ const descargarArchivoEntrega = async (req, res) => {
     }
 };
 
-module.exports = { validarEntrega, guardarEntrega, obtenerMiEntrega, descargarArchivoEntrega };
+const esProfesorDelAnuncio = async (idAnuncio, idUsuario) => {
+    const anuncio = await Anuncios.findByPk(idAnuncio);
+    if (!anuncio) {
+        return false;
+    }
+    const profesor = await clasesUsuarios.findOne({
+        where: { id_clase: anuncio.id_clase, id_usuario: idUsuario, esProfesor: true }
+    });
+    return Boolean(profesor);
+};
+
+const obtenerEntregasDelAnuncio = async (req, res) => {
+    const idAnuncio = Number(req.params.idAnuncio);
+
+    if (!esIdValido(idAnuncio)) {
+        return res.status(400).json({ message: 'El id del anuncio no es válido' });
+    }
+
+    try {
+        if (!await esProfesorDelAnuncio(idAnuncio, req.user.id)) {
+            return res.status(403).json({ message: 'Solo el profesor puede ver las entregas' });
+        }
+
+        const entregas = await Entregas.findAll({
+            where: { id_anuncio: idAnuncio },
+            attributes: ['id_entrega', 'fecha_entrega', 'calificacion'],
+            include: [
+                { model: usuarios, attributes: ['nombre', 'apellido'] },
+                { model: ArchivosEntrega, as: 'archivos', attributes: ['id_archivo_entrega', 'nombre_original'] }
+            ],
+            order: [['fecha_entrega', 'ASC']]
+        });
+
+        return res.status(200).json({ entregas });
+    } catch (error) {
+        console.error('Error al obtener las entregas:', error);
+        return res.status(500).json({ message: 'No se pudieron obtener las entregas' });
+    }
+};
+
+const calificarEntrega = async (req, res) => {
+    const idEntrega = Number(req.params.idEntrega);
+    const calificacion = Number(req.body.calificacion);
+
+    if (!esIdValido(idEntrega)) {
+        return res.status(400).json({ message: 'El id de la entrega no es válido' });
+    }
+
+    if (!Number.isFinite(calificacion) || calificacion < 1 || calificacion > 10) {
+        return res.status(400).json({ message: 'La nota tiene que ser un número entre 1 y 10' });
+    }
+
+    try {
+        const entrega = await Entregas.findByPk(idEntrega);
+        if (!entrega) {
+            return res.status(404).json({ message: 'No se encontró la entrega' });
+        }
+
+        if (!await esProfesorDelAnuncio(entrega.id_anuncio, req.user.id)) {
+            return res.status(403).json({ message: 'Solo el profesor puede calificar' });
+        }
+
+        await entrega.update({ calificacion });
+        return res.status(200).json({ message: 'Entrega calificada', calificacion });
+    } catch (error) {
+        console.error('Error al calificar la entrega:', error);
+        return res.status(500).json({ message: 'No se pudo calificar la entrega' });
+    }
+};
+
+module.exports = { validarEntrega, guardarEntrega, obtenerMiEntrega, descargarArchivoEntrega, obtenerEntregasDelAnuncio, calificarEntrega };
